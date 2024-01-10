@@ -29,7 +29,9 @@ class CB_decoder:
         self.bp_reweighting  = bp_reweighting
         self.max_cts = max_cts
         
+        
         if isinstance(model, stim.DetectorErrorModel):
+            self.data = False
             self._matrices = detector_error_model_to_check_matrices(model, allow_undecomposed_hyperedges=True)
 
 
@@ -44,6 +46,7 @@ class CB_decoder:
             self.llr = np.log(self._matrices.priors/(1-self._matrices.priors))
         
         else:
+            self.data = True
             self.pcm = model[0]
             priors = np.full(self.pcm.shape[1], model[1])
             self._bp = bp_decoder(
@@ -293,7 +296,10 @@ class CB_decoder:
         n, m = self.pcm.shape
 
         if np.all(syndrome == np.zeros(m)):
-            return (self._matrices.observables_matrix @ np.zeros(n)) % 2
+            if not self.data:
+                return (self._matrices.observables_matrix @ np.zeros(n)) % 2
+            else:
+                return np.zeros(n)
 
 
 
@@ -301,7 +307,10 @@ class CB_decoder:
             corr = self._bp.decode(syndrome)
             if self._bp.converge == 1:
                 # BP has converged, we return result:
-                return  (self._matrices.observables_matrix @ corr) % 2
+                if not self.data:
+                    return  (self._matrices.observables_matrix @ corr) % 2
+                else:
+                    return corr
             else:
                 if not np.any(np.isinf(self._bp.log_prob_ratios)) and not np.any(np.isnan(self._bp.log_prob_ratios)):
                     llr = self._bp.log_prob_ratios
@@ -314,6 +323,7 @@ class CB_decoder:
         if comments:
             print('BP fails')
             print(list(syndrome))
+            
         # ORDERING THE PCM SO AS TO CONSIDER DENSER EVENTS FIRST
         # We order following the llrs,  from smaller to larger
         # ones_count_per_column = np.sum(self.pcm, axis=0).astype(int)
@@ -362,7 +372,10 @@ class CB_decoder:
             # return condition if all non_trivial checks have been flipped.
             
             if np.array_equal(syndrome, cluster.checks):
-                return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                if not self.data:
+                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                else:
+                    return (cluster.events[np.argsort(np.ravel(sorted_indices))])
             
             #------------------------------------------------------------------------------------------
 
@@ -391,8 +404,11 @@ class CB_decoder:
 
                 # We check if the syndrome condition has been satisfied.
                 if np.array_equal(syndrome, cluster.checks):
-                    # print('Here')
-                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                    if not self.data:
+                        return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                    else:
+                        return (cluster.events[np.argsort(np.ravel(sorted_indices))])
+            
 
 
             #------------------------------------------------------------------------------------------
@@ -407,7 +423,10 @@ class CB_decoder:
 
             # We check if the syndrome condition has been satisfied.
             if np.array_equal(syndrome, cluster.checks):
-                return (self._matrices.observables_matrix @ cluster.events[np.argsort(sorted_indices)]) % 2
+                if not self.data:
+                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                else:
+                    return (cluster.events[np.argsort(np.ravel(sorted_indices))])
 
             if comments:
                 print(f'Weight 1 ND error recovering:')
@@ -415,7 +434,10 @@ class CB_decoder:
 
             # We check if the syndrome condition has been satisfied.
             if np.array_equal(syndrome, cluster.checks):
-                return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                if not self.data:
+                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                else:
+                    return (cluster.events[np.argsort(np.ravel(sorted_indices))])
 
             if comments:
                 print(f'1 cts ND error recovering:')
@@ -436,7 +458,10 @@ class CB_decoder:
                 print(f' {np.sum(syndrome)- np.sum(cluster.checks)} checks to flip')
             # We check if the syndrome condition has been satisfied.
             if np.array_equal(syndrome, cluster.checks):
-                return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                if not self.data:
+                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                else:
+                    return (cluster.events[np.argsort(np.ravel(sorted_indices))])
 
 
 
@@ -448,6 +473,7 @@ class CB_decoder:
 
 
     def decode_batch(self, shots: np.ndarray) -> np.ndarray:
+        # This function only available under CLN using stim
         predictions = np.zeros((shots.shape[0], self._matrices.observables_matrix.shape[0]), dtype=bool)
         for i in range(shots.shape[0]):
             predictions[i, :] = self.decode(shots[i, :])
