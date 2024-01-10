@@ -1,2 +1,5 @@
 # CBDec
- Closed branch decoder 
+ 
+ The closed branch decoder is a new type of generic decoder for quantum error correcting codes.
+
+
