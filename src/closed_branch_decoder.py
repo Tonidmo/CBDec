@@ -2,19 +2,16 @@ import stim
 import numpy as np
 from beliefmatching import detector_error_model_to_check_matrices
 import copy
-from typing import Union
-from sinter import Decoder
-from ldpc.osd import bposd_decoder
+from typing import Union, Tuple
 from ldpc import bp_decoder
 from src.branch import Branch, Closed_Branch, Cluster
-from sinter import Decoder
 
 
 class CB_decoder:
 
     def __init__(
             self,
-            model: Union(stim.DetectorErrorModel, (np.ndarray, float)),
+            model: Union[stim.DetectorErrorModel, Tuple[np.ndarray, float]],
             max_branches: int = 25,
             max_growths: int = 5,
             max_cts: int = 3,
@@ -83,11 +80,11 @@ class CB_decoder:
                 continue
             column = reordered_binary_matrix[:, col]
 
-
-            if np.all(np.isin(column[:, 0].nonzero()[0], ones_indices)):
+        
+            if np.all(np.isin(column[:].nonzero()[0], ones_indices)):
                 checks = np.zeros(self.m)
 
-                checks[column[:, 0].nonzero()[0]] = 1
+                checks[column[:].nonzero()[0]] = 1
                 events = np.zeros(self.n)
                 events[col] = 1
                 cb_to_add = Closed_Branch(checks.astype(int), events.astype(int))
@@ -136,8 +133,8 @@ class CB_decoder:
             
             column = reordered_binary_matrix[:, col]
 
-            check_nodes = np.intersect1d(column[:, 0].nonzero()[0], ones_indices)
-            checks_to_search = np.setdiff1d(column[:, 0].nonzero()[0], ones_indices)
+            check_nodes = np.intersect1d(column[:].nonzero()[0], ones_indices)
+            checks_to_search = np.setdiff1d(column[:].nonzero()[0], ones_indices)
             # TODO Consider destruction case in which touching another closed_tree from the beginning destroys them.
 
             if len(check_nodes) > 0 and len(checks_to_search) == trivial_cts:
@@ -162,7 +159,8 @@ class CB_decoder:
                         clusters_to_consider = cluster_copy,
                         sepd = [],
                         sepc = [],
-                        ptbf = 1
+                        ptbf = 1,
+                        data = self.data
                     )
 
 
@@ -176,7 +174,8 @@ class CB_decoder:
                         clusters_to_consider = cluster_copy,
                         sepd = [list(checks_to_search)],
                         sepc = [int(checks_to_search[0])],
-                        ptbf = 1
+                        ptbf = 1,
+                        data = self.data
                     )
                     # for i in range(len(branch.sepc)):
                     #     assert branch.sepc[i] in branch.sepd[i], 'Fallo, sepc no correspondiente a sepd'
@@ -189,8 +188,6 @@ class CB_decoder:
                 # Mirar de cambiar a While True hasta que se encuentre rama cerrada o se termine el peso de las ramas abiertas y retorne lista vacía.
                 #for growth in range(1,numb_growths + 1):
                 i = 0
-                if col == 1951:
-                    pass
                 while True:
                     i += 1 
                     # if i > 1:
@@ -235,36 +232,14 @@ class CB_decoder:
                         if weight_values[new_branches.index(branch)] == threshold:
                             branches.append(branch)
 
-                    # branches = [branch for branch in new_branches if weight_values[new_branches.index(branch)] == threshold]
 
-
-                    
-                    # print('After')
-                    # for branch in branches:
-                    #     for sep in branch.sepd:
-                    #         print(sep)
-                    #         if len(sep) < 2:
-                    #             pass
-                    # print('\n')
-
-                    # br = copy.deepcopy(branches)
-
-                    # for branch in br:
-                    #     branch.sepd = [tuple(sep) for sep in branch.sepd]
-
-                    # del branches
-                    
                 
                 if len(new_branches) > 0:
                     if len(new_branches) == 1 and new_branches[0].ptbf == 0:
-                        # print('HERE')
-                        # FALTA PONER LOS CHECKS Y EVENTS DEL NEW_BRANCH AL CLUSTER
                         new_branch = new_branches[0]
                         cluster = new_branch.cluster
                         closed_branch = Closed_Branch(new_branch.checks, new_branch.events) # Potser sigui aquí
                         cluster.include_closed_branch_to_cluster(closed_branch, destruction)
-                        # for check in np.where(cluster.checks == 1)[0]:
-                        #     assert len([1 for branch in cluster.closed_branches_2 if branch.checks[check] == 1]) <= 1 or len([1 for branch in cluster.closed_branches_1 if branch.checks[check] <= 1])
                         checks_to_flip = np.bitwise_xor(cluster.checks, syndrome)
                         ones_indices = np.where(checks_to_flip == 1)[0]
                         
@@ -469,7 +444,7 @@ class CB_decoder:
         if np.array_equal(syndrome, cluster.checks):
             return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
         else:
-            return (self._matrices.observables_matrix @ np.zeros(self.n)) % 2
+            return cluster.events[np.argsort(np.ravel(sorted_indices))]
 
 
     def decode_batch(self, shots: np.ndarray) -> np.ndarray:

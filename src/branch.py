@@ -88,7 +88,8 @@ class Branch:
             clusters_to_consider: Cluster,
             sepd: list,
             sepc: list,
-            ptbf : int
+            ptbf : int,
+            data : bool, # Añadir datas para hacer distinción entre matrices sparse
     ):
         self.pcm = pcm
         self.checks = checks
@@ -100,6 +101,7 @@ class Branch:
         self.sepc = sepc
         self.ptbf = ptbf
         self.m, self.n = self.pcm.shape
+        self.data = data
 
     
 
@@ -137,9 +139,11 @@ class Branch:
                 pass
         new_branches = []
 
-
-        # Iterate over the self.pcm
-        row_value = self.pcm.getrow(self.check_to_search).toarray().flatten()
+        if not self.data:
+            # Iterate over the self.pcm
+            row_value = self.pcm.getrow(self.check_to_search).toarray().flatten()
+        else:
+            row_value = self.pcm[self.check_to_search]
         # result_columns = [index for index, value in enumerate(row_value) if value == 1] #=> columnas en las que actua el check trivial.
         result_columns = np.argwhere(row_value) #=> columnas en las que actua el check trivial.
 
@@ -176,7 +180,10 @@ class Branch:
 
 
             # Miro a ver si el resto de números de la columna están en el síndrome
-            non_trivial_indices = np.where(self.pcm[:, col_index].toarray() == 1)[0]
+            if not self.data:
+                non_trivial_indices = np.where(self.pcm[:, col_index].toarray() == 1)[0]
+            else:
+                non_trivial_indices = np.where(self.pcm[:, col_index] == 1)[0]
             # Eliminamos el check to search.
             non_trivial_indices = np.delete(non_trivial_indices, np.where(non_trivial_indices == self.check_to_search)[0])
 
@@ -223,7 +230,8 @@ class Branch:
                     clusters_to_consider  = cluster_new_branch,
                     sepd = self.sepd,
                     sepc = self.sepc,
-                    ptbf = 0
+                    ptbf = 0,
+                    data = self.data
                 )
                 new_branches.append(new_branch)
             
@@ -237,7 +245,8 @@ class Branch:
                     clusters_to_consider  = cluster_new_branch,
                     sepd = self.sepd,
                     sepc = self.sepc,
-                    ptbf = self.ptbf
+                    ptbf = self.ptbf,
+                    data = self.data
                 )
                 # for i in range(len(self.sepc)):
                 #     if self.sepc[i] not in self.sepd[i]:
@@ -256,7 +265,8 @@ class Branch:
                     clusters_to_consider  = cluster_new_branch,
                     sepd = self.sepd + [list(checks_to_search)],
                     sepc = self.sepc + [int(checks_to_search[0])],
-                    ptbf = self.ptbf
+                    ptbf = self.ptbf,
+                    data = self.data
                 )
                 for sep in new_branch.sepd:
                     if len(sep) < 2:
@@ -494,6 +504,3 @@ class Branch:
             sep_numb += len(path)
         return sep_numb
     
-
-class Branch_batch:
-    pass
