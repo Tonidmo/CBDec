@@ -3,7 +3,7 @@ from pcm_construction.bbcodes import bbpcm
 from src.noise.data_qubit import depolarizing_round
 from src.closed_branch_decoder import CB_decoder
 from scipy.linalg import null_space
-
+from bposd import bposd_decoder
 
 
 if __name__ == "__main__":
@@ -22,26 +22,34 @@ if __name__ == "__main__":
     
     # TODO los errores x no deberían formar parte del nullspace the Hz ni los z del nullspace de Hx
 
-    # ps = np.linspace(0.005, 0.04, num = 8)
-    ps = [.005]
+    ps = np.linspace(0.005, 0.04, num = 8)
     NMC = 10**6
+    ps = [.005]
     Pl = 0        
-    n_branches = 1000
-    n_growths = 12
-    name_file = f'data\data_l{l}_m{m}_ng{n_growths}_nb{n_branches}.txt'
+    name_file = f'data\data_l{l}_m{m}_bposd.txt'
     for p in ps:
         print(f'Prob: {p}')
-        model = (H, p)    
-        myDecoder = CB_decoder(model, max_branches = n_branches, max_growths = n_growths)
+        
+        myDecoder =  bposd_decoder(
+            H,
+            error_rate = p,
+            channel_probs = [None],
+            max_iter = H.shape[1],
+            bp_method = "ms",
+            ms_scaling_factor = 0,
+            osd_method = "osd_cs",
+            osd_order = 0
+        )
+        
         for i in range(NMC):
             # print(f'Numero {i}')
             error = depolarizing_round(p, H.shape[1])
 
             syndrome = (np.dot(H, error) % 2).astype(int)
 
-            error_recovered = myDecoder.decode(syndrome, comments = False)
+            myDecoder.decode(syndrome)
 
-            tot_err = error_recovered ^ error
+            tot_err = myDecoder.osdw_decoding ^ error
             
             if np.all(tot_err == 0):
                 continue
