@@ -8,7 +8,7 @@ from scipy.linalg import null_space
 
 if __name__ == "__main__":
     # We will first create the parity check matrix. For this example, it will be l = 6, m = 6 A_poly = 
-    l = 12
+    l = 9
     m = 6 
     # A polynomial = x^3+y+y^2
     A_poly = [[0,3], [1,1], [1,2]]
@@ -22,46 +22,43 @@ if __name__ == "__main__":
     
     # TODO los errores x no deberían formar parte del nullspace the Hz ni los z del nullspace de Hx
 
-    print(H.shape)
-    p = 0.003 #3%
-    NMC = 10**4
+    ps = [.005]
+    NMC = 10**7
     Pl = 0        
     n_branches = 100
     n_growths = 6
-    model = (H, p)    
-    for i in range(NMC):
-        # print(f'Numero {i}')
-        error = depolarizing_round(p, H.shape[1])
+    name_file = f'data\data_l{l}_m{m}_ng{n_growths}_nb{n_branches}.txt'
+    for p in ps:
+        print(f'Prob: {p}')
+        model = (H, p)    
+        for i in range(NMC):
+            # print(f'Numero {i}')
+            error = depolarizing_round(p, H.shape[1])
 
-        myDecoder = CB_decoder(model, max_branches = n_branches, max_growths = n_growths)
+            myDecoder = CB_decoder(model, max_branches = n_branches, max_growths = n_growths)
 
-        syndrome = (np.dot(H, error) % 2).astype(int)
+            syndrome = (np.dot(H, error) % 2).astype(int)
 
-        error_recovered = myDecoder.decode(syndrome, comments = True)
+            error_recovered = myDecoder.decode(syndrome, comments = False)
 
-        tot_err = error_recovered ^ error
-        
-        if np.all(tot_err == 0):
-            continue
-        
-        elif not np.all((np.dot(H, tot_err) % 2).astype(int) == 0):
-            Pl += 1/NMC
-            print('Case 1')
-            print(error)
-            continue
-        tot_errorx = tot_err[:H.shape[1]//2]
-        print('Possible case')
-        if not np.all((np.dot(Hz_nullspace.T, tot_errorx) % 2).astype(int) == 0):
-            Pl += 1/NMC
-            print('Case 2')
-            print(error)
-            continue
-        
-        tot_errorz = tot_err[H.shape[1]//2:]
-        if not np.all((np.dot(Hx_nullspace.T, tot_errorz) % 2).astype(int) == 0):
-            Pl += 1/NMC
-            print('Case 3')
-            print(error)
-            continue
-    print(Pl)
+            tot_err = error_recovered ^ error
+            
+            if np.all(tot_err == 0):
+                continue
+            
+            elif not np.all((np.dot(H, tot_err) % 2).astype(int) == 0):
+                Pl += 1/NMC
+                continue
+            tot_errorx = tot_err[:H.shape[1]//2]
+            if not np.all((np.dot(Hz_nullspace.T, tot_errorx) % 2).astype(int) == 0):
+                Pl += 1/NMC
+                continue
+            
+            tot_errorz = tot_err[H.shape[1]//2:]
+            if not np.all((np.dot(Hx_nullspace.T, tot_errorz) % 2).astype(int) == 0):
+                Pl += 1/NMC
+                continue
+        with open(name_file, 'a') as file:
+            file.write(f'{p}\t\t {Pl}\n')
+            print(f'{p}\t\t {Pl}\n')
         
