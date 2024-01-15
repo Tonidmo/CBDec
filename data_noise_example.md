@@ -102,3 +102,83 @@ if not np.all((np.dot(Hx_nullspace.T, tot_errorz) % 2).astype(int) == 0):
 
 ## Computing a logical error curve and plotting it
 
+Now that we know how to decode a single syndrome we will see to make lots of simulations for different probability values `ps` in order to plot curve of the logical error probability `Pl` with dependence on the individual physical error probability `p`. In order to find the logical error rate `Pl` for a given physical error rate `p` we compute a number `NMC` of simulations which consist on generating an error `e`, computing its syndrome `z` and attempting to decode it. We achieve `Pl` for that `p` by summating all the times the decoding process fails and dividing it over `NMC`.
+
+We begin by introducing the probabilities `ps` to which we will find the logical error rates `Pls`:
+
+```python
+
+# We choose the physical probabilities.
+ps = np.linspace(10**-2, 10**-1, num = 10)
+
+# List containing the 
+Pls = []
+
+# We set the number of iterations.
+NMC = 10**4
+
+for p in ps:
+
+    # For every p value we define the model and the decoder class.
+    model = (H, p)    
+    myDecoder = CB_decoder(model, max_branches = n_branches, max_growths = n_growths)
+    Pl = 0
+
+    for _ in range(NMC):
+
+        # Error generation
+        e = depolarizing_round(p, H.shape[1])
+
+        # Syndrome generation
+        z = (np.dot(H, e) % 2).astype(int)
+
+        # Error recovery
+        rec_e = myDecoder.decode(z, comments = False)
+
+        # Error combinations
+        tot_err = rec_e ^ e
+        
+        # Logical error conditions
+
+        # If total error is trivial there is no logical error.
+        if np.all(tot_err == 0):
+            continue
+        
+        # If total error produces a non-trivial syndrome there has been a logical  error.
+        elif not np.all((np.dot(H, tot_err) % 2).astype(int) == 0):
+            Pl += 1/NMC
+            continue
+
+        # Here we check if the total error acts non-trivially on the codespace.
+        tot_errorx = tot_err[:H.shape[1]//2]
+        if not np.all((np.dot(Hz_nullspace.T, tot_errorx) % 2).astype(int) == 0):
+            Pl += 1/NMC
+            continue
+        
+        tot_errorz = tot_err[H.shape[1]//2:]
+        if not np.all((np.dot(Hx_nullspace.T, tot_errorz) % 2).astype(int) == 0):
+            Pl += 1/NMC
+            continue
+    
+    # We append the final value to the Pls list.
+    Pls.append(Pl)
+
+```
+
+Once `Pls` has been computed, we can plot the final result using the `matplotilib` library. We can also add a line indicating the pseudo-threshold limit, that is, the point at which `Pl` = `p`.
+
+```python
+
+import matplotlib.pyplot as plt
+
+plt.plot(list(ps), Pls, marker='.', color = 'blue', linestyle='', label='[[72, 12, 6]] CB')
+plt.plot([min(list(ps)), max(list(ps))], [min(list(ps)), max(list(ps))], color='red', linestyle='-', label='$P_L=p$')
+plt.xlabel('$p$')
+plt.ylabel('$P_L$')
+plt.title(f'Data qubit logical error curve')
+plt.xscale('log')
+plt.yscale('log')
+plt.legend(bbox_to_anchor=(0.5, -0.45), loc='lower center', ncol=2)
+plt.plot()
+
+```
