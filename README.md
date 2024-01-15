@@ -6,6 +6,18 @@
 
 This repository can be employed in order to make simulations of the closed branch decoder on arbitrary quantum error correcting codes. For simulations, this repository will provide a template for data qubit noise, phenomenological noise and circuit-level noise. In all this instances, we consider depolarizing noise.
 
+## Installation
+
+Once the repository has been cloned, in order to start using the CBDec repository, you should start by installing all the necessary python packages through:
+
+```bash
+
+pip install -r requirements.txt
+
+```
+
+
+
 ## Examples
 
 In order to initiate yourselves on the way this repository works, there are three .md files with examples showing the way in which this repositary can be used. This are:
@@ -24,5 +36,6 @@ Please, cite the following article upon publishing results utilizing this reposi
 
 Additionaly, this repository uses modules which should be cited themselves:
 
-1. [Gidney, C., ``Stim: a fast stabilizer circuit simulator.`` *Quantum*  **5**, 497 (2021).](https://quantum-journal.org/papers/q-2021-07-06-497/)
-2. 
+1. [Gidney, C., ``Stim: a fast stabilizer circuit simulator.`` *Quantum*  **5**, 497 (2021).](https://github.com/quantumlib/Stim/tree/main)
+2. [Roffe, J., ``LDPC: Python tools for low density parity check codes`` (2022)](https://github.com/quantumgizmos/ldpc/tree/main)
+3. [Higgott, O., Bohdanowicz, T. C., Kubica, A., Flammia, S. T. and Campbell, E. T. ``Improved Decoding of Circuit Noise and Fragile Boundaries of Tailored Surface Codes.`` *Phys. Rev. X* **13**, 031007 (2023)](https://github.com/oscarhiggott/BeliefMatching)
