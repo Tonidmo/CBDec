@@ -7,7 +7,10 @@ def depolarizing_round(p : float, n : int) -> np.array:
 
     Args:
         p (float): probability of error
-        n (int): number of columns
+        n (int): number of columns in the code.
+        
+    Returns:
+        error (np.array): array representing the resulting error.
     """
     assert n % 2 == 0, "The value of columns of a quantum parity check matrix should be even."
     values = [0, 1, 2, 3] # I, X, Y, Z
@@ -28,3 +31,22 @@ def depolarizing_round(p : float, n : int) -> np.array:
             error[i + n//2] = 1
     
     return error
+
+def n_depolarizing_rounds(p : float, n : int, NMC : int) -> np.array:
+    """
+    This function returns a (NMC, 2n) matrix where rows consist of errors and columns correspond to the location
+    of the Pauli errors.
+
+    Parameters:
+        p (float): probability of error
+        n (int): number of columns in the code
+        NMC (int): number of simulations.
+        
+    Returns:
+        error_matrix (np.ndarray): matrix containing all simulated errors.
+    """
+    error_matrix = np.zeros((NMC, 2 * n), dtype=int)
+    for i in NMC:
+        error = depolarizing_round(p, n)
+        error_matrix[i,:] = error
+    return error_matrix
