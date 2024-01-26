@@ -50,3 +50,23 @@ def n_depolarizing_rounds(p : float, n : int, NMC : int) -> np.array:
         error = depolarizing_round(p, n)
         error_matrix[i,:] = error
     return error_matrix
+
+
+def destructive_error( H : np.ndarray) -> np.array:
+    """
+    We are going to choose an error which is surrounded by other errors.
+    """
+    _, n = H.shape
+    while True:
+        error = np.zeros(n, dtype=int)
+        er_col = np.random.randint(0, n)
+        check_positions = np.where(H[:, er_col] == 1)[0]
+        for err in check_positions:
+            possible_errors = np.where(H[err, :] == 1)[0]
+            for possible_error in possible_errors:
+                if error[possible_error] != 1:
+                    error[possible_error] = 1
+                    break
+        if sum(error) == 3:
+            break
+    return error

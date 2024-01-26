@@ -147,9 +147,6 @@ class Branch:
         # result_columns = [index for index, value in enumerate(row_value) if value == 1] #=> columnas en las que actua el check trivial.
         result_columns = np.argwhere(row_value) #=> columnas en las que actua el check trivial.
 
-        # print(f'Columns in which we find {self.check_to_search}')
-        # print(result_columns)
-        # print('\n')
 
         for sep in self.sepd:
             assert len(sep) > 1, 'Error en sepd'
@@ -168,56 +165,57 @@ class Branch:
                 continue
             
             check_nodes = np.zeros(self.m)
-            # checks_to_search = np.zeros(self.m) # Mirar esto porque no sé si debería ser un int.
             new_event = np.zeros(self.n)
             new_event[col_index] = 1
-            #TODO crear el nuevo cluster del new branch no como una copia, sinó iniciando una nueva clase
             cluster_new_branch = copy.deepcopy(self.cluster)
-            
-            checks_to_flip = np.bitwise_xor(self.cluster.checks.astype(np.uint8), syndrome.astype(np.uint8))
 
-            ones_indices = np.where(checks_to_flip == 1)[0]
+            # Si es destructivo, mira al check to search. Si no lo es, procede as usual.
+            if destruction and cluster_new_branch.deletable_check(self.check_to_search): # Condiciones suficientes para destruir.
+                # La condición es que el crecimiento sea destructivo y que el check to search forme parte de un closed branch
+                # no destructivo.
+                triggered_branch = [branch for branch in cluster_new_branch.closed_branches_2 if branch.checks[self.check_to_search] == 1]
+                assert len(triggered_branch) == 1, "There are more than one closed_branch related to the same check."
+                cluster_new_branch.delete_closed_branch_from_cluster(self.check_to_search)
+                # Dentro de la columna, los checks que corresponden a elementos no triviales:
+                check_nodes = np.zeros(self.m)
+                # We should first check if the check to search is in new_ones_indices
+                check_nodes[self.check_to_search] = 1 
+                # Los que corresponden a elementos triviales.
+                checks_to_search = []
+                check_to_add = np.zeros(self.pcm.shape[0])
+                check_to_add[self.check_to_search] = 1
+                cluster_new_branch.add_check_to_cluster(check_to_add)
 
 
-            # Miro a ver si el resto de números de la columna están en el síndrome
-            if not self.data:
-                non_trivial_indices = np.where(self.pcm[:, col_index].toarray() == 1)[0]
             else:
-                non_trivial_indices = np.where(self.pcm[:, col_index] == 1)[0]
-            # Eliminamos el check to search.
-            non_trivial_indices = np.delete(non_trivial_indices, np.where(non_trivial_indices == self.check_to_search)[0])
+                checks_to_flip = np.bitwise_xor(self.cluster.checks.astype(np.uint8), syndrome.astype(np.uint8))
+
+                ones_indices = np.where(checks_to_flip == 1)[0]
 
 
-            # Dentro de la columna, los checks que corresponden a elementos no triviales:
-            check_nodes[np.intersect1d(non_trivial_indices, ones_indices)] = 1
-            # Los que corresponden a elementos triviales.
-            checks_to_search = np.setdiff1d(non_trivial_indices, ones_indices)
+                # Miro a ver si el resto de números de la columna están en el síndrome
+                if not self.data:
+                    non_trivial_indices = np.where(self.pcm[:, col_index].toarray() == 1)[0]
+                else:
+                    non_trivial_indices = np.where(self.pcm[:, col_index] == 1)[0]
+                # Eliminamos el check to search.
+                non_trivial_indices = np.delete(non_trivial_indices, np.where(non_trivial_indices == self.check_to_search)[0])
 
-            if destruction:
-                # Miramos si alguno de los checks_to_search está en el sindrome con intersect.
-                # Sacamos una lista, de esta lista miramos si cada uno de los checks de la lista es borrable del cluster.
-                # Flipeamos los que lo sean y redefinimos check_nodes y checks_to_search.
-                indices_checks_to_delete = list(np.intersect1d(checks_to_search, np.where(syndrome == 1)[0]))
-                if len(indices_checks_to_delete) > 0:
-                    for element in indices_checks_to_delete:
-                        if cluster_new_branch.deletable_check(element):
-                            triggered_branch = [branch for branch in cluster_new_branch.closed_branches_2 if branch.checks[element] == 1]
-                            assert len(triggered_branch) == 1, "There are more than one closed_branch related to the same check."
-                            cluster_new_branch.delete_closed_branch_from_cluster(element)
-                    checks_to_flip = np.bitwise_xor(cluster_new_branch.checks.astype(np.uint8), syndrome.astype(np.uint8))
-                    new_ones_indices = np.where(checks_to_flip == 1)[0]
-                    # Dentro de la columna, los checks que corresponden a elementos no triviales:
-                    check_nodes = np.zeros(self.m)
-                    check_nodes[np.intersect1d(non_trivial_indices, new_ones_indices)] = 1
-                    # Los que corresponden a elementos triviales.
-                    checks_to_search = np.setdiff1d(non_trivial_indices, new_ones_indices)
 
-            cluster_new_branch.add_check_to_cluster(check_nodes)
-            cluster_new_branch.add_event_to_cluster(new_event)
+                # Dentro de la columna, los checks que corresponden a elementos no triviales:
+                check_nodes[np.intersect1d(non_trivial_indices, ones_indices)] = 1
+                # Los que corresponden a elementos triviales.
+                checks_to_search = np.setdiff1d(non_trivial_indices, ones_indices)
 
-            
+
+
+                cluster_new_branch.add_check_to_cluster(check_nodes)
+                cluster_new_branch.add_event_to_cluster(new_event)
+
+            #  We redefine the new_event so as to place it in the overall branch
             new_event = self.events.copy()
             new_event[col_index] = (new_event[col_index] + 1) % 2
+            
             # We must now decide what to do depending of the number of values in check_to_search.
             if len(checks_to_search) == 0: # Closed branch
                 new_branch = Branch(
@@ -239,7 +237,8 @@ class Branch:
                 new_branch = Branch(
                     pcm = self.pcm,
                     checks = np.bitwise_xor(self.checks.astype(np.uint8), check_nodes.astype(np.uint8)),
-                    events = np.bitwise_xor(self.events.astype(np.uint8), new_event.astype(np.uint8)),
+                    events = new_event,
+                    # events = np.bitwise_xor(self.events.astype(np.uint8), new_event.astype(np.uint8)),
                     check_to_search = int(checks_to_search),
                     weight_to_consider = weight_new,
                     clusters_to_consider  = cluster_new_branch,
@@ -248,10 +247,6 @@ class Branch:
                     ptbf = self.ptbf,
                     data = self.data
                 )
-                # for i in range(len(self.sepc)):
-                #     if self.sepc[i] not in self.sepd[i]:
-                #         self.sepd[i].append(self.sepc[i])
-                #     assert self.sepc[i] in self.sepd[i], 'Fallo, sepc no correspondiente a sepd'
                 new_branch.consider_loops()
                 new_branches.append(new_branch)
             
@@ -259,7 +254,8 @@ class Branch:
                 new_branch = Branch(
                     pcm = self.pcm,
                     checks = np.bitwise_xor(self.checks.astype(np.uint8), check_nodes.astype(np.uint8)),
-                    events = np.bitwise_xor(self.events.astype(np.uint8), new_event.astype(np.uint8)),
+                    events = new_event,
+                    # events = np.bitwise_xor(self.events.astype(np.uint8), new_event.astype(np.uint8)),
                     check_to_search = int(checks_to_search[0]),
                     weight_to_consider = weight_new,
                     clusters_to_consider  = cluster_new_branch,
@@ -274,8 +270,6 @@ class Branch:
                 for i in range(len(new_branch.sepc)):
                     if not new_branch.sepc[i] in new_branch.sepd[i]:
                         new_branch.sepd[i].append(new_branch.sepc[i])
-                # for i in range(len(new_branch.sepc)):
-                #     assert new_branch.sepc[i] in new_branch.sepd[i], 'Fallo, sepc no correspondiente a sepd'
                 new_branch.consider_loops()
                 new_branches.append(new_branch)
 
