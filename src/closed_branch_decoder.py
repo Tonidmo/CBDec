@@ -53,7 +53,7 @@ class CB_decoder:
                 channel_probs=priors,
                 **bposd_kwargs
             )
-            self.llr = np.log(priors/(1-priors))
+            self.llr = np.log((1-priors)/priors)
         
         self.m, self.n = self.pcm.shape
 
@@ -292,8 +292,9 @@ class CB_decoder:
                     llr = llr - min(llr) + 1
                 else:
                     llr = self.llr - min(self.llr) + 1
+                    
         else:
-            llr = self.llr 
+            llr = self.llr
         
         if comments:
             print('BP fails')
@@ -322,6 +323,7 @@ class CB_decoder:
             weight = (step*(max(llr))) # We write 
             if comments:
                 print(f'Weight = {weight}')
+                print(f'Llr max: {max(llr)} \t llrmin: {min(llr)}')
             # weight = max(llr)*step
 
             # We introduce clusters
