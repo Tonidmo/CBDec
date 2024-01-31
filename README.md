@@ -28,7 +28,7 @@ In order to initiate yourselves on the way this repository works, there are thre
 
 ## Dependencies
 
-Beliefmatching, stim, ldpc (from Jocshka)
+Beliefmatching, stim, ldpc (from Joschka)
 
 ## Citation
 

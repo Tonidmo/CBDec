@@ -53,7 +53,7 @@ class CB_decoder:
                 channel_probs=priors,
                 **bposd_kwargs
             )
-            self.llr = np.log(priors/(1-priors))
+            self.llr = np.log((1-priors)/priors)
         
         self.m, self.n = self.pcm.shape
 
@@ -289,11 +289,12 @@ class CB_decoder:
             else:
                 if not np.any(np.isinf(self._bp.log_prob_ratios)) and not np.any(np.isnan(self._bp.log_prob_ratios)):
                     llr = self._bp.log_prob_ratios
-                    llr = llr - min(llr)
+                    llr = llr - min(llr) + 1
                 else:
                     llr = self.llr - min(self.llr) + 1
+                    
         else:
-            llr = self.llr 
+            llr = self.llr
         
         if comments:
             print('BP fails')
@@ -322,6 +323,7 @@ class CB_decoder:
             weight = (step*(max(llr))) # We write 
             if comments:
                 print(f'Weight = {weight}')
+                print(f'Llr max: {max(llr)} \t llrmin: {min(llr)}')
             # weight = max(llr)*step
 
             # We introduce clusters
@@ -389,54 +391,63 @@ class CB_decoder:
             #------------------------------------------------------------------------------------------
             
             # DESTRUCTION GROWTH
-            # for tcts in range(1, self.max_cts + 1):
+            for tcts in range(1, self.max_cts + 1):
 
-            if comments:
-                print(f'{tcts} check nodes to search DESTRUCTIVE branch growth:\n')
-            # Hacer función que te mira cuantos checks triviales tienes en una columna, si son "tcts" y tiene como mínimo un check_node, palante.
-            cluster = self.non_dest_branch_growing(tcts, cluster, syndrome, reordered_llr, weight, reordered_binary_matrix, self.max_branches, destruction = True)
+                if comments:
+                    print(f'{tcts} check nodes to search DESTRUCTIVE branch growth:\n')
+                # Hacer función que te mira cuantos checks triviales tienes en una columna, si son "tcts" y tiene como mínimo un check_node, palante.
+                cluster = self.non_dest_branch_growing(
+                    tcts, 
+                    cluster, 
+                    syndrome, 
+                    reordered_llr, 
+                    weight, 
+                    reordered_binary_matrix, 
+                    self.max_branches, 
+                    destruction = True
+                )
 
-            # We check if the syndrome condition has been satisfied.
-            if np.array_equal(syndrome, cluster.checks):
-                if not self.data:
-                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
-                else:
-                    return (cluster.events[np.argsort(np.ravel(sorted_indices))])
+                # We check if the syndrome condition has been satisfied.
+                if np.array_equal(syndrome, cluster.checks):
+                    if not self.data:
+                        return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                    else:
+                        return (cluster.events[np.argsort(np.ravel(sorted_indices))])
 
-            if comments:
-                print(f'Weight 1 ND error recovering:')
-            cluster = self.weight_1_errors(syndrome, weight, cluster, reordered_llr, reordered_binary_matrix)
+                if comments:
+                    print(f'Weight 1 ND error recovering:')
+                cluster = self.weight_1_errors(syndrome, weight, cluster, reordered_llr, reordered_binary_matrix)
 
-            # We check if the syndrome condition has been satisfied.
-            if np.array_equal(syndrome, cluster.checks):
-                if not self.data:
-                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
-                else:
-                    return (cluster.events[np.argsort(np.ravel(sorted_indices))])
+                # We check if the syndrome condition has been satisfied.
+                if np.array_equal(syndrome, cluster.checks):
+                    if not self.data:
+                        return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                    else:
+                        return (cluster.events[np.argsort(np.ravel(sorted_indices))])
 
-            if comments:
-                print(f'1 cts ND error recovering:')
-                print(f' {np.sum(syndrome)- np.sum(cluster.checks)} checks to flip')
+                if comments:
+                    print(f'1 cts ND error recovering:')
+                    print(f' {np.sum(syndrome)- np.sum(cluster.checks)} checks to flip')
 
-            cluster = self.non_dest_branch_growing(
-                1, 
-                cluster, 
-                syndrome, 
-                reordered_llr, 
-                weight, 
-                reordered_binary_matrix, 
-                self.max_branches
-            )
-            
-            if comments:
-                print(f'Weight syndrome after {tcts} DESTRUCTIVE growth')
-                print(f' {np.sum(syndrome)- np.sum(cluster.checks)} checks to flip')
-            # We check if the syndrome condition has been satisfied.
-            if np.array_equal(syndrome, cluster.checks):
-                if not self.data:
-                    return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
-                else:
-                    return (cluster.events[np.argsort(np.ravel(sorted_indices))])
+                cluster = self.non_dest_branch_growing(
+                    1, 
+                    cluster, 
+                    syndrome, 
+                    reordered_llr, 
+                    weight, 
+                    reordered_binary_matrix, 
+                    self.max_branches
+                )
+                
+                if comments:
+                    print(f'Weight syndrome after {tcts} DESTRUCTIVE growth')
+                    print(f' {np.sum(syndrome)- np.sum(cluster.checks)} checks to flip')
+                # We check if the syndrome condition has been satisfied.
+                if np.array_equal(syndrome, cluster.checks):
+                    if not self.data:
+                        return (self._matrices.observables_matrix @ cluster.events[np.argsort(np.ravel(sorted_indices))]) % 2
+                    else:
+                        return (cluster.events[np.argsort(np.ravel(sorted_indices))])
 
 
 

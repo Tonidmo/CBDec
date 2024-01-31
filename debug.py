@@ -84,6 +84,6 @@ if __name__ == '__main__':
 
 
 
-        with open(name_file, 'a') as file:
-            file.write(f"{p} \t \t {Pl}\n")
-        print(f'p = {p} \t  Pl = {Pl}')
+        # with open(name_file, 'a') as file:
+        #     file.write(f"{p} \t \t {Pl}\n")
+        # print(f'p = {p} \t  Pl = {Pl}')
