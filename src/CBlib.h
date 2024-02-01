@@ -12,18 +12,45 @@
  * 
  **********************************************************************************************************************/
 
+#include <cstdio>
 #include <cstdint>
-#include <vector>
+#include <array>
 
 #include "CBlib_config.h"
 
+#define ECBLIB_ERROR(fmt, ...) {fflush(stderr); \
+                                 fprintf(stderr, "[ECBLIB_ERROR] %s(%d): " fmt "\n", \
+                                          __FUNCTION__, __LINE__, ## __VA_ARGS__); \
+                                 fflush(stderr); \
+                                 }
+
+#ifdef DEBUG_CBLIB
+#define ECBLIB_DGB(fmt, ...) {fflush(stdout); \
+                                 fprintf(stdout, "[ECBLIB_DGB] %s(%d): " fmt "\n", \
+                                          __FUNCTION__, __LINE__, ## __VA_ARGS__); \
+                                 fflush(stdout); \
+                              }
+#else 
+#define ECBLIB_DGB(...)
+#endif
+
 namespace CBlib
 {
+   /********************************************************************************************************************
+    * @brief Enumeration that describes the status of the operations of the CBlib methods.
+    *******************************************************************************************************************/
+   enum ECBStatus
+   {
+      E_CB_OK           =  0,    //!< Ok status, indicates correct operation.
+      E_CB_ERR_GENERIC  = -1,    //!< Generic error, for error types not defined specifically.
+      E_CB_ERR_INVAL    = -2     //<! Input value error, the input value is not valid.
+   };
+
    class ClosedBranch
    {
          private:
-            std::vector<bool> m_a_u1_checks;
-            std::vector<bool> m_a_u1_events;
+            std::array<bool, MAX_CHECKS_BUFF> m_a_u1_checks;
+            std::array<bool, MAX_EVENTS_BUFF> m_a_u1_events;
 
          public:
             /***********************************************************************************************************
@@ -36,9 +63,9 @@ namespace CBlib
              **********************************************************************************************************/
             ~ClosedBranch(void);
 
-            void add_check_to_closed_branch(uint64_t const u64_new_check);
+            ECBStatus add_check_to_closed_branch(uint64_t const u64_new_check);
 
-            void add_event_to_closed_branch(uint64_t const u64_new_event);
+            ECBStatus add_event_to_closed_branch(uint64_t const u64_new_event);
    };
 
    class Cluster
