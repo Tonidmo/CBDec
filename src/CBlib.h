@@ -12,6 +12,9 @@
  * 
  **********************************************************************************************************************/
 
+#ifndef CBLIB_H_
+#define CBLIB_H_
+
 #include <cstdio>
 #include <cstdint>
 #include <array>
@@ -78,3 +81,5 @@ namespace CBlib
    };
    
 }
+
+#endif // CBLIB_H_
