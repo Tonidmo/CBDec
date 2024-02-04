@@ -11,6 +11,6 @@
  * 
  **********************************************************************************************************************/
 
-#define  MAX_CHECKS_BUFF_LEN      65535U
-#define  MAX_EVENTS_BUFF_LEN      65535U
+#define  MAX_BRANCH_CHECKS_LEN      65535U
+#define  MAX_BRANCH_EVENTS_LEN      65535U
 
