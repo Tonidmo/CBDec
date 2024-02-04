@@ -80,9 +80,29 @@ namespace CBlib
              **********************************************************************************************************/
             ~ClosedBranch(void);
 
-            ECBStatus add_check_to_closed_branch(uint64_t const u64_new_check);
+            /***********************************************************************************************************
+             * @brief   Adds a check to the current closed branch object.
+             * 
+             * @param u64_new_check[in]   Index of the check.
+             * 
+             * @return ECBStatus Result of the operation:
+             *                      - E_CB_OK: successful operation.
+             *                      - E_CB_ERR_INVAL: invalid input index.
+             *                      - E_CB_ERR_GENERIC: Generic error.
+             **********************************************************************************************************/
+            ECBStatus add_check_to_closed_branch(uint64_t const & u64_new_check);
 
-            ECBStatus add_event_to_closed_branch(uint64_t const u64_new_event);
+            /***********************************************************************************************************
+             * @brief   Adds an event to the current closed branch object.
+             * 
+             * @param u64_new_event[in]   Index of the event.
+             * 
+             * @return ECBStatus Result of the operation:
+             *                      - E_CB_OK: successful operation.
+             *                      - E_CB_ERR_INVAL: invalid input index.
+             *                      - E_CB_ERR_GENERIC: Generic error.
+             **********************************************************************************************************/
+            ECBStatus add_event_to_closed_branch(uint64_t const & u64_new_event);
    };
 
    class Cluster

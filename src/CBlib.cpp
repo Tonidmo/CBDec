@@ -57,7 +57,7 @@ namespace CBlib
       memset(&m_a_u1_events, 0, MAX_BRANCH_EVENTS_LEN);
    };
 
-   ECBStatus ClosedBranch::add_check_to_closed_branch(uint64_t const u64_new_check)
+   ECBStatus ClosedBranch::add_check_to_closed_branch(uint64_t const & u64_new_check)
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
 
@@ -83,7 +83,7 @@ namespace CBlib
       return e_ret;
    }
 
-   ECBStatus ClosedBranch::add_event_to_closed_branch(uint64_t const u64_new_event)
+   ECBStatus ClosedBranch::add_event_to_closed_branch(uint64_t const & u64_new_event)
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
 
