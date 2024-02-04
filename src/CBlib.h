@@ -17,24 +17,30 @@
 
 #include <cstdio>
 #include <cstdint>
-#include <array>
+#include <vector>
 
 #include "CBlib_config.h"
 
-#define ECBLIB_ERROR(fmt, ...) {fflush(stderr); \
+#define CBLIB_ERROR(fmt, ...) {fflush(stderr); \
                                  fprintf(stderr, "[ECBLIB_ERROR] %s(%d): " fmt "\n", \
                                           __FUNCTION__, __LINE__, ## __VA_ARGS__); \
                                  fflush(stderr); \
                                  }
 
+#define CBLIB_WARN(fmt, ...) {fflush(stdout); \
+                                 fprintf(stdout, "[ECBLIB_WARNING] %s(%d): " fmt "\n", \
+                                          __FUNCTION__, __LINE__, ## __VA_ARGS__); \
+                                 fflush(stdout); \
+                                 }
+
 #ifdef DEBUG_CBLIB
-#define ECBLIB_DGB(fmt, ...) {fflush(stdout); \
+#define CBLIB_DGB(fmt, ...) {fflush(stdout); \
                                  fprintf(stdout, "[ECBLIB_DGB] %s(%d): " fmt "\n", \
                                           __FUNCTION__, __LINE__, ## __VA_ARGS__); \
                                  fflush(stdout); \
                               }
 #else 
-#define ECBLIB_DGB(...)
+#define CBLIB_DGB(...)
 #endif
 
 namespace CBlib
@@ -52,14 +58,22 @@ namespace CBlib
    class ClosedBranch
    {
          private:
-            std::array<bool, MAX_CHECKS_BUFF> m_a_u1_checks;
-            std::array<bool, MAX_EVENTS_BUFF> m_a_u1_events;
+            std::vector<bool> m_a_u1_checks;
+            std::vector<bool> m_a_u1_events;
 
          public:
             /***********************************************************************************************************
              * @brief Construct a new Closed Branch object. It initializes both checks and events arrays to zeroes.
              **********************************************************************************************************/
             ClosedBranch(void);
+
+            /***********************************************************************************************************
+             * @brief Construct a new Closed Branch object and initialized the members with the passed arguments.
+             * 
+             * @param checks[in]    Input array of checks.
+             * @param events[in]    Input array of events.
+             **********************************************************************************************************/
+            ClosedBranch(std::vector<bool> const & checks, std::vector<bool> const & events);
 
             /***********************************************************************************************************
              * @brief Destroy the Closed Branch object.

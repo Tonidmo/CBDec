@@ -1,7 +1,7 @@
 # CBlib: Closed Branch library
 *Authors*:
 - Imanol Etxezarreta
-- Ton De Marti Olius
+- Antonio de Martí i Olius
 - Josu Etxezarreta
 
 ## Description

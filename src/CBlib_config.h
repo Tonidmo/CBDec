@@ -11,6 +11,6 @@
  * 
  **********************************************************************************************************************/
 
-#define  MAX_CHECKS_BUFF      65535U
-#define  MAX_EVENTS_BUFF      65535U
+#define  MAX_CHECKS_BUFF_LEN      65535U
+#define  MAX_EVENTS_BUFF_LEN      65535U
 
