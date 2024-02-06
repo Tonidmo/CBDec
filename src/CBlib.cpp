@@ -111,30 +111,6 @@ namespace CBlib
     * CLOSED BRANCH CLASS END
     *******************************************************************************************************************/
 
-   /********************************************************************************************************************
-    * CLUSTER CLASS START
-    *******************************************************************************************************************/
-   Cluster::Cluster(void)
-   {
-      m_a_u1_total_checks.reserve(MAX_BRANCH_CHECKS_LEN);
-      m_a_u1_total_events.reserve(MAX_BRANCH_EVENTS_LEN);
-   }
-
-   Cluster::Cluster(std::vector<bool> a_u1_checks,
-                     std::vector<bool> a_u1_events,
-                     std::vector<ClosedBranch> a_o_cbs1,
-                     std::vector<ClosedBranch> a_o_cbs2)
-   {
-      (void) a_u1_checks;
-      (void) a_u1_events;
-      (void) a_o_cbs1;
-      (void) a_o_cbs2;
-   }
-
-   Cluster::~Cluster(void){}
-   /********************************************************************************************************************
-    * CLUSTER CLASS END
-    *******************************************************************************************************************/
 
 
 }
