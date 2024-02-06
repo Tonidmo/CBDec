@@ -80,6 +80,10 @@ namespace CBlib
              **********************************************************************************************************/
             ~ClosedBranch(void);
 
+            std::vector<bool> get_cb_checks(void) const;
+
+            std::vector<bool> get_cb_events(void) const;
+
             /***********************************************************************************************************
              * @brief   Adds a check to the current closed branch object.
              * 
@@ -108,10 +112,21 @@ namespace CBlib
    class Cluster
    {
       private:
-         /* data */
+         std::vector<bool> m_a_u1_total_checks;
+         std::vector<bool> m_a_u1_total_events;
+
+         std::vector<ClosedBranch> m_a_closed_branches_1;
+         std::vector<ClosedBranch> m_a_closed_branches_2;
+
       public:
-         Cluster(/* args */);
-         ~Cluster();
+         Cluster(void);
+
+         Cluster(std::vector<bool> a_u1_checks,
+                  std::vector<bool> a_u1_events,
+                  std::vector<ClosedBranch> a_o_cbs1,
+                  std::vector<ClosedBranch> a_o_cbs2);
+
+         ~Cluster(void);
    };
    
 }

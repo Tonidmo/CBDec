@@ -58,18 +58,16 @@ OBJ_DEBUG := $(addprefix $(DBG_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC
 TEST_SRC := $(foreach x, $(TEST_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
 TEST_OBJ := $(addprefix $(TEST_OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(TEST_SRC)))))
 
-# clean files list
-DISTCLEAN_LIST := $(OBJ) \
-                  $(OBJ_DEBUG) \
-						$(TEST_OBJ_PATH)/*.o
-CLEAN_LIST := $(TARGET) \
-			  $(TARGET_DEBUG) \
-			  $(TARGET_TESTS) \
-			  $(GTEST_OUT_PATH)/*.a \
-			  $(DISTCLEAN_LIST)
-
 # default rule
-default: makedir all
+default: makedir lib tests
+
+# Make CBlib
+lib: makedir $(TARGET)
+	@echo Building $(TARGET_NAME) library!
+
+# Make tests
+tests: makedir $(TARGET_NAME)_tests
+	@echo Building tests for $(TARGET_NAME) library as $(TARGET_NAME)_tests!
 
 # non-phony targets
 $(TARGET): $(OBJ)
@@ -101,10 +99,12 @@ $(GTEST_OUT_PATH)/gtest_main.a : $(TEST_OBJ_PATH)/gtest-all.o $(TEST_OBJ_PATH)/g
 
 # Test rules
 $(TARGET_NAME)_tests: $(TEST_OBJ) $(GTEST_OUT_PATH)/gtest_main.a
-	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR)/include $^ -lpthread -o $(TEST_OUT_PATH)/$@
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR)/include -I$(INC_PATH) -L$(LIB_PATH) $^ \
+		-l:$(TARGET_NAME).so -lpthread -o $(TEST_OUT_PATH)/$@ -Wl,-R$(LIB_PATH)
 
 $(TEST_OBJ_PATH)/%.o: $(TEST_PATH)/%.c*
-	$(CXX) $(COBJFLAGS) -I$(GTEST_DIR)/include -lpthread -o $@ $<
+	$(CXX) $(COBJFLAGS) -I$(GTEST_DIR)/include -I$(INC_PATH) \
+		-L$(LIB_PATH) -l:$(TARGET_NAME).so -lpthread -l$(TARGET_NAME).so -o $@ $<
 
 
 # phony rules
@@ -120,10 +120,5 @@ debug: $(TARGET_DEBUG)
 
 .PHONY: clean
 clean:
-	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(CLEAN_LIST)
-
-.PHONY: distclean
-distclean:
-	@echo CLEAN $(DISTCLEAN_LIST)
-	@rm -f $(DISTCLEAN_LIST)
+	@echo Removing $(BUILD_DIR) directory...
+	@rm -rf $(BUILD_DIR)

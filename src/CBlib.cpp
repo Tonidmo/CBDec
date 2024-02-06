@@ -19,13 +19,14 @@
 
 namespace CBlib
 {
+
+   /********************************************************************************************************************
+    * CLOSED BRANCH CLASS START
+    *******************************************************************************************************************/
    ClosedBranch::ClosedBranch(void)
    {
-      m_a_u1_checks.reserve(MAX_BRANCH_CHECKS_LEN);
-      m_a_u1_events.reserve(MAX_BRANCH_EVENTS_LEN);
-
-      memset(&m_a_u1_checks, 0, MAX_BRANCH_CHECKS_LEN);
-      memset(&m_a_u1_events, 0, MAX_BRANCH_EVENTS_LEN);
+      m_a_u1_checks = std::vector<bool>(MAX_BRANCH_CHECKS_LEN, false);
+      m_a_u1_events = std::vector<bool>(MAX_BRANCH_EVENTS_LEN, false);
    }
 
    ClosedBranch::ClosedBranch(std::vector<bool> const & a_u1_checks, std::vector<bool> const & a_u1_events)
@@ -51,11 +52,17 @@ namespace CBlib
       }
    }
 
-   ClosedBranch::~ClosedBranch(void)
+   ClosedBranch::~ClosedBranch(void){}
+
+   std::vector<bool> ClosedBranch::get_cb_checks(void) const
    {
-      memset(&m_a_u1_checks, 0, MAX_BRANCH_CHECKS_LEN);
-      memset(&m_a_u1_events, 0, MAX_BRANCH_EVENTS_LEN);
-   };
+      return this->m_a_u1_checks;
+   }
+
+   std::vector<bool> ClosedBranch::get_cb_events(void) const
+   {
+      return this->m_a_u1_events;
+   }
 
    ECBStatus ClosedBranch::add_check_to_closed_branch(uint64_t const & u64_new_check)
    {
@@ -100,6 +107,34 @@ namespace CBlib
 
       return e_ret;
    }
+   /********************************************************************************************************************
+    * CLOSED BRANCH CLASS END
+    *******************************************************************************************************************/
+
+   /********************************************************************************************************************
+    * CLUSTER CLASS START
+    *******************************************************************************************************************/
+   Cluster::Cluster(void)
+   {
+      m_a_u1_total_checks.reserve(MAX_BRANCH_CHECKS_LEN);
+      m_a_u1_total_events.reserve(MAX_BRANCH_EVENTS_LEN);
+   }
+
+   Cluster::Cluster(std::vector<bool> a_u1_checks,
+                     std::vector<bool> a_u1_events,
+                     std::vector<ClosedBranch> a_o_cbs1,
+                     std::vector<ClosedBranch> a_o_cbs2)
+   {
+      (void) a_u1_checks;
+      (void) a_u1_events;
+      (void) a_o_cbs1;
+      (void) a_o_cbs2;
+   }
+
+   Cluster::~Cluster(void){}
+   /********************************************************************************************************************
+    * CLUSTER CLASS END
+    *******************************************************************************************************************/
 
 
 }
