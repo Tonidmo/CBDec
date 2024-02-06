@@ -101,10 +101,10 @@ $(GTEST_OUT_PATH)/gtest_main.a : $(TEST_OBJ_PATH)/gtest-all.o $(TEST_OBJ_PATH)/g
 
 # Test rules
 $(TARGET_NAME)_tests: $(TEST_OBJ) $(GTEST_OUT_PATH)/gtest_main.a
-	$(CXX) $(CXXFLAGS) -I$(INC_PATH) $^ -lpthread -o $(TEST_OUT_PATH)/$@
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR)/include $^ -lpthread -o $(TEST_OUT_PATH)/$@
 
 $(TEST_OBJ_PATH)/%.o: $(TEST_PATH)/%.c*
-	$(CXX) $(COBJFLAGS) -I$(INC_PATH) -lpthread -o $@ $<
+	$(CXX) $(COBJFLAGS) -I$(GTEST_DIR)/include -lpthread -o $@ $<
 
 
 # phony rules
