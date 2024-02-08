@@ -19,8 +19,6 @@
 #include <cstdint>
 #include <vector>
 
-#include "CBlib_config.h"
-
 #define CBLIB_ERROR(fmt, ...) {fflush(stderr); \
                                  fprintf(stderr, "[ECBLIB_ERROR] %s(%d): " fmt "\n", \
                                           __FUNCTION__, __LINE__, ## __VA_ARGS__); \
@@ -58,8 +56,8 @@ namespace CBlib
    class ClosedBranch
    {
          private:
-            std::vector<bool> m_a_u1_checks;
-            std::vector<bool> m_a_u1_events;
+            std::vector<bool> m_au1_checks;    //!< Member array of checks related to the closed branch
+            std::vector<bool> m_au1_events;    //!< Member array of events related to the closed branch
 
          public:
             /***********************************************************************************************************
@@ -80,8 +78,18 @@ namespace CBlib
              **********************************************************************************************************/
             ~ClosedBranch(void);
 
+            /***********************************************************************************************************
+             * @brief   Returns the member array of checks related to the closed branch.
+             * 
+             * @return std::vector<bool> Return vector of checks.
+             **********************************************************************************************************/
             std::vector<bool> get_cb_checks(void) const;
 
+            /***********************************************************************************************************
+             * @brief   Returns the member array of events related to the closed branch.
+             * 
+             * @return std::vector<bool> Return vector of events.
+             **********************************************************************************************************/
             std::vector<bool> get_cb_events(void) const;
 
             /***********************************************************************************************************

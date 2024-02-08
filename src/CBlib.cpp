@@ -17,6 +17,8 @@
 
 #include "CBlib.h"
 
+#define  INITIAL_MEM_ALLOC   UINT16_MAX
+
 namespace CBlib
 {
 
@@ -25,59 +27,39 @@ namespace CBlib
     *******************************************************************************************************************/
    ClosedBranch::ClosedBranch(void)
    {
-      m_a_u1_checks = std::vector<bool>(MAX_BRANCH_CHECKS_LEN, false);
-      m_a_u1_events = std::vector<bool>(MAX_BRANCH_EVENTS_LEN, false);
+      m_au1_checks = std::vector<bool>(INITIAL_MEM_ALLOC, false);
+      m_au1_events = std::vector<bool>(INITIAL_MEM_ALLOC, false);
    }
 
-   ClosedBranch::ClosedBranch(std::vector<bool> const & a_u1_checks, std::vector<bool> const & a_u1_events)
-   {
-      if (MAX_BRANCH_CHECKS_LEN >= a_u1_checks.size())
-      {
-         m_a_u1_checks = a_u1_checks;
-      }
-      else
-      {
-         std::copy_n(a_u1_checks.begin(), MAX_BRANCH_CHECKS_LEN, m_a_u1_checks.begin());
-         CBLIB_WARN("Possible information loss! Increase max buffer size...");
-      }
-
-      if (MAX_BRANCH_EVENTS_LEN >= a_u1_events.size())
-      {
-         m_a_u1_events = a_u1_events;
-      }
-      else
-      {
-         std::copy_n(a_u1_events.begin(), MAX_BRANCH_EVENTS_LEN, m_a_u1_events.begin());
-         CBLIB_WARN("Possible information loss! Increase max buffer size...");
-      }
-   }
+   ClosedBranch::ClosedBranch(std::vector<bool> const & a_u1_checks, std::vector<bool> const & a_u1_events):
+   m_au1_checks(a_u1_checks), m_au1_events(a_u1_events){};
 
    ClosedBranch::~ClosedBranch(void){}
 
    std::vector<bool> ClosedBranch::get_cb_checks(void) const
    {
-      return this->m_a_u1_checks;
+      return this->m_au1_checks;
    }
 
    std::vector<bool> ClosedBranch::get_cb_events(void) const
    {
-      return this->m_a_u1_events;
+      return this->m_au1_events;
    }
 
    ECBStatus ClosedBranch::add_check_to_closed_branch(uint64_t const & u64_new_check)
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
 
-      if (u64_new_check > MAX_BRANCH_CHECKS_LEN)
+      if (u64_new_check > m_au1_checks.size())
       {
          CBLIB_ERROR("Error (%d)!  Increment the maximum buffer size...", E_CB_ERR_INVAL);
          e_ret = E_CB_ERR_INVAL;
       }
       else
       {
-         if (m_a_u1_checks[u64_new_check] != 1)
+         if (m_au1_checks[u64_new_check] != 1U)
          {
-            m_a_u1_checks[u64_new_check] = 1;
+            m_au1_checks[u64_new_check] = 1U;
          }
          else
          {
@@ -94,14 +76,14 @@ namespace CBlib
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
 
-      if (u64_new_event > MAX_BRANCH_EVENTS_LEN)
+      if (u64_new_event > m_au1_events.size())
       {
          CBLIB_ERROR("Error (%d)! Increment the maximum buffer size...", E_CB_ERR_INVAL);
          e_ret = E_CB_ERR_INVAL;
       }
       else
       {
-         m_a_u1_events[u64_new_event] = (1 + m_a_u1_events[u64_new_event]) % 2;
+         m_au1_events[u64_new_event] = (1U + m_au1_events[u64_new_event]) % 2;
          e_ret = E_CB_OK;
       }
 
