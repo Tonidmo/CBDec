@@ -120,21 +120,50 @@ namespace CBlib
    class Cluster
    {
       private:
-         std::vector<bool> m_a_u1_total_checks;
-         std::vector<bool> m_a_u1_total_events;
-
-         std::vector<ClosedBranch> m_a_closed_branches_1;
-         std::vector<ClosedBranch> m_a_closed_branches_2;
+         std::vector<bool> m_au1_total_checks;    //!< Member array of the checks related to the cluster
+         std::vector<bool> m_au1_total_events;    //!< Member array of the events related to the cluster
+         std::vector<ClosedBranch> m_ao_ndes_closed_branches;   //!< Member array of non-destructive Closed Branches 
+                                                               //!< related to the cluster.
+         std::vector<ClosedBranch> m_ao_des_closed_branches;    //!< Member array of destructive Closed Branches 
+                                                               //!< related to the cluster.
 
       public:
+         /**************************************************************************************************************
+          * @brief   Default constructor of Cluster class. Initializes everything to 0.
+          *************************************************************************************************************/
          Cluster(void);
 
-         Cluster(std::vector<bool> a_u1_checks,
-                  std::vector<bool> a_u1_events,
-                  std::vector<ClosedBranch> a_o_cbs1,
-                  std::vector<ClosedBranch> a_o_cbs2);
+         /**************************************************************************************************************
+          * @brief   Construct a new Cluster object depending on the parameters given.
+          * 
+          * @param au1_checks[in]  Array of checks to associate to the cluster object.
+          * @param au1_events[in]  Array of events to associate to the cluster object.
+          * @param ao_ndes_cbs[in] Array of non-destructive closed branches to associate to the cluster.
+          * @param ao_des_cbs[in]  Array of destructive closed branches to associate to the cluster.
+          *************************************************************************************************************/
+         Cluster(std::vector<bool> au1_checks,
+                  std::vector<bool> au1_events,
+                  std::vector<ClosedBranch> ao_ndes_cbs,
+                  std::vector<ClosedBranch> ao_des_cbs);
 
+         /**************************************************************************************************************
+          * @brief Default destructor of the Cluster object.
+          *************************************************************************************************************/
          ~Cluster(void);
+
+         void add_check_to_cluster();
+
+         void add_event_to_cluster(std::vector<bool> const & au1_new_event);
+
+         bool check_if_check_in_cluster_cbs(uint64_t const & u64_check);
+
+         bool deletable_check(uint64_t const & u64_check);
+
+         void delete_closed_branch_from_cluster(uint64_t const & u64_check);
+
+         void include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc = false);
+
+
    };
    
 }
