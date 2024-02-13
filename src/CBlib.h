@@ -50,7 +50,8 @@ namespace CBlib
    {
       E_CB_OK           =  0,    //!< Ok status, indicates correct operation.
       E_CB_ERR_GENERIC  = -1,    //!< Generic error, for error types not defined specifically.
-      E_CB_ERR_INVAL    = -2     //<! Input value error, the input value is not valid.
+      E_CB_ERR_INVAL    = -2,    //<! Input value error, the input value is not valid.
+      E_CB_SCHECK_ERR   = -3     //!< Error of an extra safety check, when flag EXTRA_SAFETY_CHECK is on.
    };
 
    class ClosedBranch
@@ -151,17 +152,17 @@ namespace CBlib
           *************************************************************************************************************/
          ~Cluster(void);
 
-         void add_check_to_cluster();
+         ECBStatus add_check_to_cluster(std::vector<bool> const & au1_new_check);
 
-         void add_event_to_cluster(std::vector<bool> const & au1_new_event);
+         ECBStatus add_event_to_cluster(std::vector<bool> const & au1_new_event);
 
          bool check_if_check_in_cluster_cbs(uint64_t const & u64_check);
 
          bool deletable_check(uint64_t const & u64_check);
 
-         void delete_closed_branch_from_cluster(uint64_t const & u64_check);
+         ECBStatus delete_closed_branch_from_cluster(uint64_t const & u64_check);
 
-         void include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc = false);
+         ECBStatus include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc = false);
 
 
    };
