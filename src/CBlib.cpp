@@ -33,7 +33,7 @@ namespace CBlib
    }
 
    ClosedBranch::ClosedBranch(std::vector<bool> const & a_u1_checks, std::vector<bool> const & a_u1_events):
-   m_au1_checks(a_u1_checks), m_au1_events(a_u1_events){};
+   m_au1_checks(a_u1_checks), m_au1_events(a_u1_events){}
 
    ClosedBranch::~ClosedBranch(void){}
 
@@ -53,20 +53,19 @@ namespace CBlib
 
       if (u64_new_check > m_au1_checks.size())
       {
-         CBLIB_ERROR("Error (%d)!  Increment the maximum buffer size...", E_CB_ERR_INVAL);
+         CBLIB_ERROR("Error (%d)!  Index out of range...", E_CB_ERR_INVAL);
          e_ret = E_CB_ERR_INVAL;
       }
+      #ifdef EXTRA_SAFETY_CHECKS
+      else if (m_au1_checks[u64_new_check] != 1U)
+      {
+         CBLIB_DGB("Check already flipped for this closed branch");
+         e_ret = E_CB_SCHECK_ERR;
+      }
+      #endif
       else
       {
-         if (m_au1_checks[u64_new_check] != 1U)
-         {
-            m_au1_checks[u64_new_check] = 1U;
-         }
-         else
-         {
-            CBLIB_DGB("Check already flipped for this closed branch");
-         }
-
+         m_au1_checks[u64_new_check] = 1U;
          e_ret = E_CB_OK;
       }
 
@@ -79,7 +78,7 @@ namespace CBlib
 
       if (u64_new_event > m_au1_events.size())
       {
-         CBLIB_ERROR("Error (%d)! Increment the maximum buffer size...", E_CB_ERR_INVAL);
+         CBLIB_ERROR("Error (%d)! Index out of range...", E_CB_ERR_INVAL);
          e_ret = E_CB_ERR_INVAL;
       }
       else
