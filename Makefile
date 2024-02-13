@@ -1,12 +1,18 @@
 # Template Makefile taken from https://github.com/TheNetAdmin/Makefile-Templates and modified to suit the needs of 
 # CBlib.
 
+# Compilation user options
+USER_DEFINES =
+ifdef EXTRA_SCHECKS
+	USER_DEFINES += -DEXTRA_SAFETY_CHECKS
+endif
+
 # tool macros
 CC ?= gcc
 CXX ?= g++
-CFLAGS := -Wall -Wextra -Werror -Wstack-protector -fPIC
-CXXFLAGS := -Wall -Wextra -Werror -Wstack-protector -fPIC
-DBGFLAGS := -g -D DEBUG_CBLIB
+CFLAGS := -Wall -Wextra -Werror -Wstack-protector -fPIC $(USER_DEFINES)
+CXXFLAGS := -Wall -Wextra -Werror -Wstack-protector -fPIC $(USER_DEFINES)
+DBGFLAGS := -g -DDEBUG_CBLIB $(USER_DEFINES)
 COBJFLAGS := $(CXXFLAGS) -c
 
 # path macros
@@ -25,8 +31,8 @@ TEST_OBJ_PATH 	:= $(BUILD_DIR)/.obj/tests
 # GTest macros
 GTEST_DIR		:= ./$(TEST_PATH)/googletest/googletest
 GTEST_OUT_PATH	:= $(TEST_OUT_PATH)
-GTEST_CPPFLAGS := -isystem $(GTEST_DIR)/include
-GTEST_CXXFLAGS	:= -g -Wall -Wextra -pthread
+GTEST_CPPFLAGS := -isystem $(GTEST_DIR)/include $(USER_DEFINES)
+GTEST_CXXFLAGS	:= -g -Wall -Wextra $(USER_DEFINES) -pthread
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
