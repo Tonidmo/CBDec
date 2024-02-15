@@ -146,7 +146,19 @@ namespace CBlib
    ECBStatus Cluster::add_event_to_cluster(std::vector<bool> const & au1_new_event)
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
-      (void) au1_new_event;
+      
+      if (m_au1_total_events.size() != au1_new_event.size())
+      {
+         e_ret = E_CB_ERR_INVAL;
+         CBLIB_ERROR("Error (%d)! Vector lengths must be equal for bitwise XOR operations...", e_ret);
+      }
+      else
+      {
+         std::transform(m_au1_total_events.begin(), m_au1_total_events.end(), 
+                        au1_new_event.begin(), m_au1_total_events.begin(),
+                        std::bit_xor<bool>());
+         e_ret = E_CB_OK;
+      }
 
       return e_ret;
    }
