@@ -42,9 +42,31 @@ namespace CBlib
       return this->m_au1_checks;
    }
 
+   bool ClosedBranch::get_cb_check_idx_value(uint64_t const & u64_check_idx) const
+   {
+      bool u1_ret = false;
+      if (u64_check_idx < m_au1_checks.size())
+      {
+         u1_ret = m_au1_checks[u64_check_idx];
+      }
+
+      return u1_ret;
+   }
+
    std::vector<bool> ClosedBranch::get_cb_events(void) const
    {
       return this->m_au1_events;
+   }
+
+   bool ClosedBranch::get_cb_event_idx_value(uint64_t const & u64_event_idx) const
+   {
+      bool u1_ret = false;
+      if (u64_event_idx < m_au1_events.size())
+      {
+         u1_ret = m_au1_events[u64_event_idx];
+      }
+
+      return u1_ret;
    }
 
    ECBStatus ClosedBranch::add_check_to_closed_branch(uint64_t const & u64_new_check)
@@ -182,7 +204,17 @@ namespace CBlib
    bool Cluster::deletable_check(uint64_t const & u64_check)
    {
       bool u1_ret_val = false;
-      (void) u64_check;
+      uint64_t u64_des_cb_idx = m_ao_des_closed_branches.size();
+
+      while(u64_des_cb_idx > 0)
+      {
+         --u64_des_cb_idx;
+         if (true == m_ao_des_closed_branches[u64_des_cb_idx].get_cb_check_idx_value(u64_check))
+         {
+            u1_ret_val = true;
+            break;
+         }
+      }
 
       return u1_ret_val;
    }
