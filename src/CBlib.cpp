@@ -222,7 +222,24 @@ namespace CBlib
    ECBStatus Cluster::delete_closed_branch_from_cluster(uint64_t const & u64_check)
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
-      (void) u64_check;
+
+      if (u64_check >= m_au1_total_checks.size())
+      {
+         e_ret = E_CB_ERR_INVAL;
+         CBLIB_ERROR("Error (%d)! Index out of range... Returning false...", e_ret);
+      }
+      #ifdef EXTRA_SAFETY_CHECKS
+      else if (false == m_au1_total_checks[u64_check])
+      {
+         e_ret = E_CB_SCHECK_ERR;
+         CBLIB_ERROR("Safety check (%d)! Check not in the closed branch from the cluster.", e_ret);
+      }
+      #endif
+      else
+      {
+         
+
+      }
 
       return e_ret;
    }
