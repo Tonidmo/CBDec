@@ -166,7 +166,15 @@ namespace CBlib
    bool Cluster::check_if_check_in_cluster_cbs(uint64_t const & u64_check)
    {
       bool u1_ret_val = false;
-      (void) u64_check;
+
+      if (u64_check >= m_au1_total_checks.size())
+      {
+         CBLIB_ERROR("Error (%d)! Index out of range... Returning false...", E_CB_ERR_INVAL);
+      }
+      else
+      {
+         u1_ret_val = m_au1_total_checks[u64_check];
+      }
 
       return u1_ret_val;
    }
