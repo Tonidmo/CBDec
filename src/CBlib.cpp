@@ -73,7 +73,7 @@ namespace CBlib
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
 
-      if (u64_new_check > m_au1_checks.size())
+      if (u64_new_check >= m_au1_checks.size())
       {
          CBLIB_ERROR("Error (%d)!  Index out of range...", E_CB_ERR_INVAL);
          e_ret = E_CB_ERR_INVAL;
@@ -98,7 +98,7 @@ namespace CBlib
    {
       ECBStatus e_ret = E_CB_ERR_GENERIC;
 
-      if (u64_new_event > m_au1_events.size())
+      if (u64_new_event >= m_au1_events.size())
       {
          CBLIB_ERROR("Error (%d)! Index out of range...", E_CB_ERR_INVAL);
          e_ret = E_CB_ERR_INVAL;
