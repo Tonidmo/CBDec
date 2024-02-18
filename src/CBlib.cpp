@@ -123,18 +123,18 @@ namespace CBlib
       m_au1_total_checks = std::vector<bool>(INITIAL_MEM_ALLOC, false);
       m_au1_total_events = std::vector<bool>(INITIAL_MEM_ALLOC, false);
 
-      m_ao_ndes_closed_branches = std::vector<ClosedBranch>();
-      m_ao_des_closed_branches = std::vector<ClosedBranch>();
+      m_ao_dest_grow_cbs = std::vector<ClosedBranch>();
+      m_ao_non_dest_grow_cbs = std::vector<ClosedBranch>();
    }
 
    Cluster::Cluster(std::vector<bool> au1_checks,
                      std::vector<bool> au1_events,
-                     std::vector<ClosedBranch> ao_ndes_cbs,
-                     std::vector<ClosedBranch> ao_des_cbs):
+                     std::vector<ClosedBranch> ao_dest_grow_cbs,
+                     std::vector<ClosedBranch> ao_non_dest_grow_cbs):
                      m_au1_total_checks(au1_checks),
                      m_au1_total_events(au1_events),
-                     m_ao_ndes_closed_branches(ao_ndes_cbs),
-                     m_ao_des_closed_branches(ao_des_cbs){}
+                     m_ao_dest_grow_cbs(ao_dest_grow_cbs),
+                     m_ao_non_dest_grow_cbs(ao_non_dest_grow_cbs){}
 
    Cluster::~Cluster(void){}
 
@@ -204,12 +204,12 @@ namespace CBlib
    bool Cluster::deletable_check(uint64_t const & u64_check)
    {
       bool u1_ret_val = false;
-      uint64_t u64_des_cb_idx = m_ao_des_closed_branches.size();
+      uint64_t u64_ndest_gr_cb_idx = m_ao_non_dest_grow_cbs.size();
 
-      while(u64_des_cb_idx > 0)
+      while(u64_ndest_gr_cb_idx > 0)
       {
-         --u64_des_cb_idx;
-         if (true == m_ao_des_closed_branches[u64_des_cb_idx].get_cb_check_idx_value(u64_check))
+         --u64_ndest_gr_cb_idx;
+         if (true == m_ao_non_dest_grow_cbs[u64_ndest_gr_cb_idx].get_cb_check_idx_value(u64_check))
          {
             u1_ret_val = true;
             break;

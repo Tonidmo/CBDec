@@ -137,11 +137,11 @@ namespace CBlib
    class Cluster
    {
       private:
-         std::vector<bool> m_au1_total_checks;    //!< Member array of the checks related to the cluster
-         std::vector<bool> m_au1_total_events;    //!< Member array of the events related to the cluster
-         std::vector<ClosedBranch> m_ao_ndes_closed_branches;   //!< Member array of non-destructive Closed Branches 
+         std::vector<bool> m_au1_total_checks;              //!< Member array of the checks related to the cluster
+         std::vector<bool> m_au1_total_events;              //!< Member array of the events related to the cluster
+         std::vector<ClosedBranch> m_ao_dest_grow_cbs;      //!< Member array of destructive growth Closed Branches 
                                                                //!< related to the cluster.
-         std::vector<ClosedBranch> m_ao_des_closed_branches;    //!< Member array of destructive Closed Branches 
+         std::vector<ClosedBranch> m_ao_non_dest_grow_cbs;  //!< Member array of non-destructive growth Closed Branches 
                                                                //!< related to the cluster.
 
       public:
@@ -160,8 +160,8 @@ namespace CBlib
           *************************************************************************************************************/
          Cluster(std::vector<bool> au1_checks,
                   std::vector<bool> au1_events,
-                  std::vector<ClosedBranch> ao_ndes_cbs,
-                  std::vector<ClosedBranch> ao_des_cbs);
+                  std::vector<ClosedBranch> ao_dest_grow_cbs,
+                  std::vector<ClosedBranch> ao_non_dest_grow_cbs);
 
          /**************************************************************************************************************
           * @brief Default destructor of the Cluster object.
