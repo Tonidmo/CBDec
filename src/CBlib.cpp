@@ -290,13 +290,16 @@ namespace CBlib
       return e_ret;
    }
 
-   ECBLibStatus Cluster::include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc)
+   void Cluster::include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_is_destructive = false)
    {
-      ECBLibStatus e_ret = E_CBL_ERR;
-      (void) o_cb;
-      (void) u1_pc;
-
-      return e_ret;
+      if (true == u1_is_destructive)
+      {
+         m_ao_dest_grow_cbs.push_back(o_cb);
+      }
+      else
+      {
+         m_ao_non_dest_grow_cbs.push_back(o_cb);
+      }
    }
    /********************************************************************************************************************
     * CLUSTER CLASS END

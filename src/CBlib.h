@@ -178,7 +178,7 @@ namespace CBlib
 
          ECBLibStatus delete_closed_branch_from_cluster(uint64_t const & u64_check);
 
-         ECBLibStatus include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc = false);
+         void include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_is_destructive);
 
 
    };
