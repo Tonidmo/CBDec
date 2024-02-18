@@ -115,9 +115,9 @@ namespace CBlib
              * @param u64_new_check[in]   Index of the check.
              * 
              * @return ECBLibStatus Result of the operation:
-             *                      - E_CB_OK: successful operation.
-             *                      - E_CB_ERR_INVAL: invalid input index.
-             *                      - E_CB_ERR_GENERIC: Generic error.
+             *                      - E_CBL_OK: successful operation.
+             *                      - E_CBL_ERR: Generic error.
+             *                      - E_CBL_ERR_INVAL: invalid input index.
              **********************************************************************************************************/
             ECBLibStatus add_check_to_closed_branch(uint64_t const & u64_new_check);
 
@@ -127,9 +127,9 @@ namespace CBlib
              * @param u64_new_event[in]   Index of the event.
              * 
              * @return ECBLibStatus Result of the operation:
-             *                      - E_CB_OK: successful operation.
-             *                      - E_CB_ERR_INVAL: invalid input index.
-             *                      - E_CB_ERR_GENERIC: Generic error.
+             *                      - E_CBL_OK: successful operation.
+             *                      - E_CBL_ERR: Generic error.
+             *                      - E_CBL_ERR_INVAL: invalid input index.
              **********************************************************************************************************/
             ECBLibStatus add_event_to_closed_branch(uint64_t const & u64_new_event);
    };
