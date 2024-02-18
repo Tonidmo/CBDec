@@ -140,9 +140,9 @@ namespace CBlib
          std::vector<bool> m_au1_clstr_checks;              //!< Member array of the checks related to the cluster
          std::vector<bool> m_au1_clstr_events;              //!< Member array of the events related to the cluster
          std::vector<ClosedBranch> m_ao_dest_grow_cbs;      //!< Member array of destructive growth Closed Branches 
-                                                               //!< related to the cluster.
+                                                            //!< related to the cluster.
          std::vector<ClosedBranch> m_ao_non_dest_grow_cbs;  //!< Member array of non-destructive growth Closed Branches 
-                                                               //!< related to the cluster.
+                                                            //!< related to the cluster.
 
       public:
          /**************************************************************************************************************

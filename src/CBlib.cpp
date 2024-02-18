@@ -237,7 +237,53 @@ namespace CBlib
       #endif
       else
       {
-         
+         uint64_t u64_ndest_gr_cb_idx = m_ao_non_dest_grow_cbs.size();
+         uint64_t u64_triggered_branch_idx = 0;
+         uint16_t u16_triggered_count = 0;
+
+         while (u64_ndest_gr_cb_idx > 0)
+         {
+            --u64_ndest_gr_cb_idx;
+            ClosedBranch o_aux_cb = m_ao_non_dest_grow_cbs[u64_ndest_gr_cb_idx];
+            if (true == o_aux_cb.get_cb_check_idx_value(u64_check))
+            {
+               u64_triggered_branch_idx = u64_ndest_gr_cb_idx;
+               ++u16_triggered_count;
+            }
+         }
+
+         if (1U == u16_triggered_count)
+         {
+            ClosedBranch o_triggered_cb = m_ao_non_dest_grow_cbs[u64_triggered_branch_idx];
+            std::vector<bool> au1_triggered_cb_checks = o_triggered_cb.get_cb_checks();
+            std::vector<bool> au1_triggered_cb_events = o_triggered_cb.get_cb_events();
+
+            for (uint64_t u64_idx = 0; u64_idx < au1_triggered_cb_checks.size(); ++u64_idx)
+            {
+               if (true == au1_triggered_cb_checks[u64_idx])
+               {
+                  m_au1_clstr_checks[u64_idx] = false;
+               }
+            }
+
+            for (uint64_t u64_idx = 0; u64_idx < au1_triggered_cb_events.size(); ++u64_idx)
+            {
+               if (true == au1_triggered_cb_events[u64_idx])
+               {
+                  m_au1_clstr_events[u64_idx] = (m_au1_clstr_events[u64_idx] + 1) % 2;
+               }
+            }
+
+            m_ao_non_dest_grow_cbs.erase(m_ao_non_dest_grow_cbs.begin() + u64_triggered_branch_idx);
+            e_ret = E_CBL_OK;
+         }
+         #ifdef EXTRA_SAFETY_CHECKS
+         else
+         {
+            e_ret = E_CBL_ERR_SCHECK;
+            CBLIB_ERROR("Safety check (%d)! There are more than one closed branch related to the same check.", e_ret);
+         }
+         #endif
 
       }
 
