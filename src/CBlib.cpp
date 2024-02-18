@@ -120,8 +120,8 @@ namespace CBlib
     *******************************************************************************************************************/
    Cluster::Cluster(void)
    {
-      m_au1_total_checks = std::vector<bool>(INITIAL_MEM_ALLOC, false);
-      m_au1_total_events = std::vector<bool>(INITIAL_MEM_ALLOC, false);
+      m_au1_clstr_checks = std::vector<bool>(INITIAL_MEM_ALLOC, false);
+      m_au1_clstr_events = std::vector<bool>(INITIAL_MEM_ALLOC, false);
 
       m_ao_dest_grow_cbs = std::vector<ClosedBranch>();
       m_ao_non_dest_grow_cbs = std::vector<ClosedBranch>();
@@ -131,8 +131,8 @@ namespace CBlib
                      std::vector<bool> au1_events,
                      std::vector<ClosedBranch> ao_dest_grow_cbs,
                      std::vector<ClosedBranch> ao_non_dest_grow_cbs):
-                     m_au1_total_checks(au1_checks),
-                     m_au1_total_events(au1_events),
+                     m_au1_clstr_checks(au1_checks),
+                     m_au1_clstr_events(au1_events),
                      m_ao_dest_grow_cbs(ao_dest_grow_cbs),
                      m_ao_non_dest_grow_cbs(ao_non_dest_grow_cbs){}
 
@@ -142,13 +142,13 @@ namespace CBlib
    {
       ECBLibStatus e_ret = E_CBL_ERR;
 
-      if (au1_new_check.size() != m_au1_total_checks.size())
+      if (au1_new_check.size() != m_au1_clstr_checks.size())
       {
          e_ret = E_CBL_ERR_INVAL;
          CBLIB_ERROR("Error (%d)! Vector lengths must be equal for bitwise XOR operations...", e_ret);
       }
       #ifdef EXTRA_SAFETY_CHECKS
-      else if (false == std::all_of(m_au1_total_checks.begin(), m_au1_total_checks.end(), [] (bool i){return i == 0;}))
+      else if (false == std::all_of(m_au1_clstr_checks.begin(), m_au1_clstr_checks.end(), [] (bool i){return i == 0;}))
       {
          e_ret = E_CBL_ERR_SCHECK;
          CBLIB_ERROR("Safety check (%d)! Check already flipped for this cluster...", e_ret);
@@ -156,8 +156,8 @@ namespace CBlib
       #endif
       else
       {
-         std::transform(m_au1_total_checks.begin(), m_au1_total_checks.end(), 
-                        au1_new_check.begin(), m_au1_total_checks.begin(),
+         std::transform(m_au1_clstr_checks.begin(), m_au1_clstr_checks.end(), 
+                        au1_new_check.begin(), m_au1_clstr_checks.begin(),
                         std::bit_xor<bool>());
          e_ret = E_CBL_OK;
       }
@@ -169,15 +169,15 @@ namespace CBlib
    {
       ECBLibStatus e_ret = E_CBL_ERR;
       
-      if (m_au1_total_events.size() != au1_new_event.size())
+      if (m_au1_clstr_events.size() != au1_new_event.size())
       {
          e_ret = E_CBL_ERR_INVAL;
          CBLIB_ERROR("Error (%d)! Vector lengths must be equal for bitwise XOR operations...", e_ret);
       }
       else
       {
-         std::transform(m_au1_total_events.begin(), m_au1_total_events.end(), 
-                        au1_new_event.begin(), m_au1_total_events.begin(),
+         std::transform(m_au1_clstr_events.begin(), m_au1_clstr_events.end(), 
+                        au1_new_event.begin(), m_au1_clstr_events.begin(),
                         std::bit_xor<bool>());
          e_ret = E_CBL_OK;
       }
@@ -189,13 +189,13 @@ namespace CBlib
    {
       bool u1_ret_val = false;
 
-      if (u64_check >= m_au1_total_checks.size())
+      if (u64_check >= m_au1_clstr_checks.size())
       {
          CBLIB_ERROR("Error (%d)! Index out of range... Returning false...", E_CBL_ERR_INVAL);
       }
       else
       {
-         u1_ret_val = m_au1_total_checks[u64_check];
+         u1_ret_val = m_au1_clstr_checks[u64_check];
       }
 
       return u1_ret_val;
@@ -223,13 +223,13 @@ namespace CBlib
    {
       ECBLibStatus e_ret = E_CBL_ERR;
 
-      if (u64_check >= m_au1_total_checks.size())
+      if (u64_check >= m_au1_clstr_checks.size())
       {
          e_ret = E_CBL_ERR_INVAL;
          CBLIB_ERROR("Error (%d)! Index out of range... Returning false...", e_ret);
       }
       #ifdef EXTRA_SAFETY_CHECKS
-      else if (false == m_au1_total_checks[u64_check])
+      else if (false == m_au1_clstr_checks[u64_check])
       {
          e_ret = E_CBL_ERR_SCHECK;
          CBLIB_ERROR("Safety check (%d)! Check not in the closed branch from the cluster.", e_ret);
