@@ -46,12 +46,12 @@ namespace CBlib
    /********************************************************************************************************************
     * @brief Enumeration that describes the status of the operations of the CBlib methods.
     *******************************************************************************************************************/
-   enum ECBStatus
+   enum ECBLibStatus
    {
-      E_CB_OK           =  0,    //!< Ok status, indicates correct operation.
-      E_CB_ERR_GENERIC  = -1,    //!< Generic error, for error types not defined specifically.
-      E_CB_ERR_INVAL    = -2,    //<! Input value error, the input value is not valid.
-      E_CB_SCHECK_ERR   = -3     //!< Error of an extra safety check, when flag EXTRA_SAFETY_CHECK is on.
+      E_CBL_OK                 =  0,    //!< Ok status, indicates correct operation.
+      E_CBL_ERR                = -1,    //!< Generic error, for error types not defined specifically.
+      E_CBL_ERR_INVAL          = -2,    //<! Input value error, the input value is not valid.
+      E_CBL_ERR_SCHECK         = -3     //!< Error of an extra safety check, when flag EXTRA_SAFETY_CHECK is on.
    };
 
    class ClosedBranch
@@ -114,24 +114,24 @@ namespace CBlib
              * 
              * @param u64_new_check[in]   Index of the check.
              * 
-             * @return ECBStatus Result of the operation:
+             * @return ECBLibStatus Result of the operation:
              *                      - E_CB_OK: successful operation.
              *                      - E_CB_ERR_INVAL: invalid input index.
              *                      - E_CB_ERR_GENERIC: Generic error.
              **********************************************************************************************************/
-            ECBStatus add_check_to_closed_branch(uint64_t const & u64_new_check);
+            ECBLibStatus add_check_to_closed_branch(uint64_t const & u64_new_check);
 
             /***********************************************************************************************************
              * @brief   Adds an event to the current closed branch object.
              * 
              * @param u64_new_event[in]   Index of the event.
              * 
-             * @return ECBStatus Result of the operation:
+             * @return ECBLibStatus Result of the operation:
              *                      - E_CB_OK: successful operation.
              *                      - E_CB_ERR_INVAL: invalid input index.
              *                      - E_CB_ERR_GENERIC: Generic error.
              **********************************************************************************************************/
-            ECBStatus add_event_to_closed_branch(uint64_t const & u64_new_event);
+            ECBLibStatus add_event_to_closed_branch(uint64_t const & u64_new_event);
    };
 
    class Cluster
@@ -168,17 +168,17 @@ namespace CBlib
           *************************************************************************************************************/
          ~Cluster(void);
 
-         ECBStatus add_check_to_cluster(std::vector<bool> const & au1_new_check);
+         ECBLibStatus add_check_to_cluster(std::vector<bool> const & au1_new_check);
 
-         ECBStatus add_event_to_cluster(std::vector<bool> const & au1_new_event);
+         ECBLibStatus add_event_to_cluster(std::vector<bool> const & au1_new_event);
 
          bool check_if_check_in_cluster_cbs(uint64_t const & u64_check);
 
          bool deletable_check(uint64_t const & u64_check);
 
-         ECBStatus delete_closed_branch_from_cluster(uint64_t const & u64_check);
+         ECBLibStatus delete_closed_branch_from_cluster(uint64_t const & u64_check);
 
-         ECBStatus include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc = false);
+         ECBLibStatus include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc = false);
 
 
    };

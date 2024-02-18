@@ -69,44 +69,44 @@ namespace CBlib
       return u1_ret;
    }
 
-   ECBStatus ClosedBranch::add_check_to_closed_branch(uint64_t const & u64_new_check)
+   ECBLibStatus ClosedBranch::add_check_to_closed_branch(uint64_t const & u64_new_check)
    {
-      ECBStatus e_ret = E_CB_ERR_GENERIC;
+      ECBLibStatus e_ret = E_CBL_ERR;
 
       if (u64_new_check >= m_au1_checks.size())
       {
-         CBLIB_ERROR("Error (%d)!  Index out of range...", E_CB_ERR_INVAL);
-         e_ret = E_CB_ERR_INVAL;
+         CBLIB_ERROR("Error (%d)!  Index out of range...", E_CBL_ERR_INVAL);
+         e_ret = E_CBL_ERR_INVAL;
       }
       #ifdef EXTRA_SAFETY_CHECKS
       else if (m_au1_checks[u64_new_check] != 1U)
       {
          CBLIB_DGB("Check already flipped for this closed branch");
-         e_ret = E_CB_SCHECK_ERR;
+         e_ret = E_CBL_ERR_SCHECK;
       }
       #endif
       else
       {
          m_au1_checks[u64_new_check] = 1U;
-         e_ret = E_CB_OK;
+         e_ret = E_CBL_OK;
       }
 
       return e_ret;
    }
 
-   ECBStatus ClosedBranch::add_event_to_closed_branch(uint64_t const & u64_new_event)
+   ECBLibStatus ClosedBranch::add_event_to_closed_branch(uint64_t const & u64_new_event)
    {
-      ECBStatus e_ret = E_CB_ERR_GENERIC;
+      ECBLibStatus e_ret = E_CBL_ERR;
 
       if (u64_new_event >= m_au1_events.size())
       {
-         CBLIB_ERROR("Error (%d)! Index out of range...", E_CB_ERR_INVAL);
-         e_ret = E_CB_ERR_INVAL;
+         CBLIB_ERROR("Error (%d)! Index out of range...", E_CBL_ERR_INVAL);
+         e_ret = E_CBL_ERR_INVAL;
       }
       else
       {
          m_au1_events[u64_new_event] = (1U + m_au1_events[u64_new_event]) % 2;
-         e_ret = E_CB_OK;
+         e_ret = E_CBL_OK;
       }
 
       return e_ret;
@@ -138,19 +138,19 @@ namespace CBlib
 
    Cluster::~Cluster(void){}
 
-   ECBStatus Cluster::add_check_to_cluster(std::vector<bool> const & au1_new_check)
+   ECBLibStatus Cluster::add_check_to_cluster(std::vector<bool> const & au1_new_check)
    {
-      ECBStatus e_ret = E_CB_ERR_GENERIC;
+      ECBLibStatus e_ret = E_CBL_ERR;
 
       if (au1_new_check.size() != m_au1_total_checks.size())
       {
-         e_ret = E_CB_ERR_INVAL;
+         e_ret = E_CBL_ERR_INVAL;
          CBLIB_ERROR("Error (%d)! Vector lengths must be equal for bitwise XOR operations...", e_ret);
       }
       #ifdef EXTRA_SAFETY_CHECKS
       else if (false == std::all_of(m_au1_total_checks.begin(), m_au1_total_checks.end(), [] (bool i){return i == 0;}))
       {
-         e_ret = E_CB_SCHECK_ERR;
+         e_ret = E_CBL_ERR_SCHECK;
          CBLIB_ERROR("Safety check (%d)! Check already flipped for this cluster...", e_ret);
       }
       #endif
@@ -159,19 +159,19 @@ namespace CBlib
          std::transform(m_au1_total_checks.begin(), m_au1_total_checks.end(), 
                         au1_new_check.begin(), m_au1_total_checks.begin(),
                         std::bit_xor<bool>());
-         e_ret = E_CB_OK;
+         e_ret = E_CBL_OK;
       }
 
       return e_ret;
    }
 
-   ECBStatus Cluster::add_event_to_cluster(std::vector<bool> const & au1_new_event)
+   ECBLibStatus Cluster::add_event_to_cluster(std::vector<bool> const & au1_new_event)
    {
-      ECBStatus e_ret = E_CB_ERR_GENERIC;
+      ECBLibStatus e_ret = E_CBL_ERR;
       
       if (m_au1_total_events.size() != au1_new_event.size())
       {
-         e_ret = E_CB_ERR_INVAL;
+         e_ret = E_CBL_ERR_INVAL;
          CBLIB_ERROR("Error (%d)! Vector lengths must be equal for bitwise XOR operations...", e_ret);
       }
       else
@@ -179,7 +179,7 @@ namespace CBlib
          std::transform(m_au1_total_events.begin(), m_au1_total_events.end(), 
                         au1_new_event.begin(), m_au1_total_events.begin(),
                         std::bit_xor<bool>());
-         e_ret = E_CB_OK;
+         e_ret = E_CBL_OK;
       }
 
       return e_ret;
@@ -191,7 +191,7 @@ namespace CBlib
 
       if (u64_check >= m_au1_total_checks.size())
       {
-         CBLIB_ERROR("Error (%d)! Index out of range... Returning false...", E_CB_ERR_INVAL);
+         CBLIB_ERROR("Error (%d)! Index out of range... Returning false...", E_CBL_ERR_INVAL);
       }
       else
       {
@@ -219,19 +219,19 @@ namespace CBlib
       return u1_ret_val;
    }
 
-   ECBStatus Cluster::delete_closed_branch_from_cluster(uint64_t const & u64_check)
+   ECBLibStatus Cluster::delete_closed_branch_from_cluster(uint64_t const & u64_check)
    {
-      ECBStatus e_ret = E_CB_ERR_GENERIC;
+      ECBLibStatus e_ret = E_CBL_ERR;
 
       if (u64_check >= m_au1_total_checks.size())
       {
-         e_ret = E_CB_ERR_INVAL;
+         e_ret = E_CBL_ERR_INVAL;
          CBLIB_ERROR("Error (%d)! Index out of range... Returning false...", e_ret);
       }
       #ifdef EXTRA_SAFETY_CHECKS
       else if (false == m_au1_total_checks[u64_check])
       {
-         e_ret = E_CB_SCHECK_ERR;
+         e_ret = E_CBL_ERR_SCHECK;
          CBLIB_ERROR("Safety check (%d)! Check not in the closed branch from the cluster.", e_ret);
       }
       #endif
@@ -244,9 +244,9 @@ namespace CBlib
       return e_ret;
    }
 
-   ECBStatus Cluster::include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc)
+   ECBLibStatus Cluster::include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_pc)
    {
-      ECBStatus e_ret = E_CB_ERR_GENERIC;
+      ECBLibStatus e_ret = E_CBL_ERR;
       (void) o_cb;
       (void) u1_pc;
 
