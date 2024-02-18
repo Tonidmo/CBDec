@@ -92,7 +92,7 @@ namespace CBlib
              * @param u64_check_idx[in]   Index to look for in the vector.
              * @return bool[out]
              **********************************************************************************************************/
-            bool ClosedBranch::get_cb_check_idx_value(uint64_t const & u64_check_idx) const;
+            bool get_cb_check_idx_value(uint64_t const & u64_check_idx) const;
 
             /***********************************************************************************************************
              * @brief   Returns the member array of events related to the closed branch.
@@ -107,7 +107,7 @@ namespace CBlib
              * @param u64_event_idx[in]   Index to look for in the vector.
              * @return bool[out]
              **********************************************************************************************************/
-            bool ClosedBranch::get_cb_event_idx_value(uint64_t const & u64_event_idx) const;
+            bool get_cb_event_idx_value(uint64_t const & u64_event_idx) const;
 
             /***********************************************************************************************************
              * @brief   Adds a check to the current closed branch object.
