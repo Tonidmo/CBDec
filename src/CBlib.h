@@ -170,34 +170,32 @@ namespace CBlib
          ~Cluster(void);
 
          /**************************************************************************************************************
-          * @brief   This routine adds a check into the cluster. The length of the input vector must be equal to the
-          *          length of the vector member 'm_ao_clstr_checks'.
+          * @brief   This routine adds a check into the cluster. The index should be inside the size of the cluster's 
+          *          checks registry.
           * 
-          * @todo Review this implementation for optimisation purposes... depending on the new_check imput parameter it
-          *       could be optimised to have as parameter the index of the check to be included.
           * 
-          * @param au1_new_check[in]   Input new check vector, to add to the cluster's checks.
+          * @param u64_new_check[in]   Input new check index, to add to the cluster's checks.
           * 
           * @return ECBLibStatus Result of the operation:
           *                      - E_CBL_OK: successful operation.
           *                      - E_CBL_ERR: Generic error.
-          *                      - E_CBL_ERR_INVAL: invalid input vector length.
+          *                      - E_CBL_ERR_INVAL: invalid index, out of range.
           *                      - E_CBL_ERR_SCHECK: safety check not met.
           *************************************************************************************************************/
-         ECBLibStatus add_check_to_cluster(std::vector<bool> const & au1_new_check);
+         ECBLibStatus add_check_to_cluster(uint64_t const & u64_new_check);
 
          /**************************************************************************************************************
-          * @brief   This routine adds an event into the cluster. The length of the input vector must be equal to the
-          *          length of the vector member 'm_ao_clstr_events'.
+          * @brief   This routine adds an event into the cluster. The index should be inside the size of the cluster's 
+          *          events registry.
           * 
-          * @param au1_new_event[in]   Input new events vector, to add into the cluster.
+          * @param au1_new_event[in]   Input new events index, to add into the cluster.
           * 
           * @return ECBLibStatus Result of the operation:
           *                      - E_CBL_OK: successful operation.
           *                      - E_CBL_ERR: Generic error.
-          *                      - E_CBL_ERR_INVAL: invalid input vector length.
+          *                      - E_CBL_ERR_INVAL: invalid input index.
           *************************************************************************************************************/
-         ECBLibStatus add_event_to_cluster(std::vector<bool> const & au1_new_event);
+         ECBLibStatus add_event_to_cluster(uint64_t const & u64_new_event);
 
          /**************************************************************************************************************
           * @brief   This routine checks whether the cluster's check at the given index is true or false.
@@ -245,8 +243,6 @@ namespace CBlib
           *                               growth closed branch collection or to the destructive ones.
           *************************************************************************************************************/
          void include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_is_destructive);
-
-
    };
    
 }

@@ -138,17 +138,17 @@ namespace CBlib
 
    Cluster::~Cluster(void){}
 
-   ECBLibStatus Cluster::add_check_to_cluster(std::vector<bool> const & au1_new_check)
+   ECBLibStatus Cluster::add_check_to_cluster(uint64_t const & u64_new_check)
    {
       ECBLibStatus e_ret = E_CBL_ERR;
 
-      if (au1_new_check.size() != m_au1_clstr_checks.size())
+      if (u64_new_check >= m_au1_clstr_checks.size())
       {
          e_ret = E_CBL_ERR_INVAL;
-         CBLIB_ERROR("Error (%d)! Vector lengths must be equal for bitwise XOR operations...", e_ret);
+         CBLIB_ERROR("Error (%d)! Index out of range...", e_ret);
       }
       #ifdef EXTRA_SAFETY_CHECKS
-      else if (false == std::all_of(m_au1_clstr_checks.begin(), m_au1_clstr_checks.end(), [] (bool i){return i == 0;}))
+      else if (true == m_au1_clstr_checks[u64_new_check])
       {
          e_ret = E_CBL_ERR_SCHECK;
          CBLIB_ERROR("Safety check (%d)! Check already flipped for this cluster...", e_ret);
@@ -156,29 +156,25 @@ namespace CBlib
       #endif
       else
       {
-         std::transform(m_au1_clstr_checks.begin(), m_au1_clstr_checks.end(), 
-                        au1_new_check.begin(), m_au1_clstr_checks.begin(),
-                        std::bit_xor<bool>());
+         m_au1_clstr_checks[u64_new_check] = true;
          e_ret = E_CBL_OK;
       }
 
       return e_ret;
    }
 
-   ECBLibStatus Cluster::add_event_to_cluster(std::vector<bool> const & au1_new_event)
+   ECBLibStatus Cluster::add_event_to_cluster(uint64_t const & u64_new_event)
    {
       ECBLibStatus e_ret = E_CBL_ERR;
       
-      if (m_au1_clstr_events.size() != au1_new_event.size())
+      if (u64_new_event >= m_au1_clstr_events.size())
       {
          e_ret = E_CBL_ERR_INVAL;
-         CBLIB_ERROR("Error (%d)! Vector lengths must be equal for bitwise XOR operations...", e_ret);
+         CBLIB_ERROR("Error (%d)! Index out of range...", e_ret);
       }
       else
       {
-         std::transform(m_au1_clstr_events.begin(), m_au1_clstr_events.end(), 
-                        au1_new_event.begin(), m_au1_clstr_events.begin(),
-                        std::bit_xor<bool>());
+         m_au1_clstr_events[u64_new_event] = 1;
          e_ret = E_CBL_OK;
       }
 
