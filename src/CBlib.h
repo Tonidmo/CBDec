@@ -244,6 +244,95 @@ namespace CBlib
           *************************************************************************************************************/
          void include_closed_branch_to_cluster(Closed_Branch const & o_cb, bool u1_is_destructive);
    };
+
+   class Branch
+   {
+      private:
+      //!< @todo: Review comments to see if they are appropriate
+         std::vector<std::vector<bool>> m_aau1_pcm;   //!< Parity check matrix.
+         std::vector<bool> m_au1_branch_checks;    //!< Vector containing the checks for the branch.
+         std::vector<bool> m_au1_branch_events;    //!< Vector containing the events for the branch.
+         uint64_t m_u64_check_to_search;     //!< Check to search for.
+         float m_f_weight_to_consider;       //!< 
+         Cluster m_o_cluster_to_consider;    //!< 
+         std::vector<uint64_t> m_au64_sepd;  //!< Separation list with all the checks through which the growth
+                                             //!< can continue.
+         std::vector<uint64_t> m_au64_sepc;  //!< Separation list with the checks that has been left behind when
+                                             //!< growing through another check, to continue if necessary.
+         bool m_u1_ptbf;   //!< Pairs-to-be-found: if true the branch is still open, and false if it is closed.
+         
+      public:
+
+         /**************************************************************************************************************
+          * @brief Default constructor for a new Branch object
+          *************************************************************************************************************/
+         Branch();
+
+         /**************************************************************************************************************
+          * @brief Construct a new Branch object with the given input parameters
+          * 
+          * @param aau1_in_pcm[in]           Parity check matrix.
+          * @param au1_in_branch_checks[in]  Checks for the branch.
+          * @param au1_in_branch_events[in]  Events for the branch.
+          * @param u64_in_cts[in]            Checks-to-search.
+          * @param f_in_wtc[in]              Weights-to-consider.
+          * @param o_in_clstr[in]            Cluster object.
+          * @param au64_in_sepd[in]          Separation list.
+          * @param au64_in_sepc[in]          Separation checks to consider.
+          * @param u1_in_ptbf[in]            Pairs-to-be-found.
+          *************************************************************************************************************/
+         Branch(std::vector<std::vector<bool>> const & aau1_in_pcm,
+                  std::vector<bool> const & au1_in_branch_checks,
+                  std::vector<bool> const & au1_in_branch_events,
+                  uint64_t const & u64_in_cts,
+                  float const & f_in_wtc,
+                  Cluster const & o_in_clstr,
+                  std::vector<uint64_t> const & au64_in_sepd,
+                  std::vector<uint64_t> const & au64_in_sepc,
+                  bool const & u1_in_ptbf);
+
+         /**************************************************************************************************************
+          * @brief Default destrusctor of the Branch object.
+          *************************************************************************************************************/
+         ~Branch();
+
+         /**************************************************************************************************************
+          * @brief   This method grows the current self branch object. The growth can be controlled to be destructive 
+          *          or non-destructive. 
+          * 
+          * @param af_llrs[in]         List of weight.
+          * @param au1_syndrome[in]    Array of the syndrome checks.
+          * @param u1_destruction[in]  Boolean parameter to control the growth method.
+          * 
+          * @return std::vector<Branch>[out]   The method returns a vector of Branch instances.
+          *************************************************************************************************************/
+         std::vector<Branch> grow_branch(std::vector<float> const & af_llrs,
+                                          std::vector<bool> au1_syndrome,
+                                          bool const & u1_destruction);
+
+         /**************************************************************************************************************
+          * @brief   This method checks whether the self instance branch is closed or not.
+          * 
+          * @return bool[out]    The method returns:
+          *                         - True: if the Branch instance is closed.
+          *                         - False: if the Branch instance is not closed.
+          *************************************************************************************************************/
+         bool check_if_branch_is_closed(void);
+
+         /**************************************************************************************************************
+          * @brief   This method considers the existence of possible loops when growing a Branch.
+          *************************************************************************************************************/
+         void consider_loops(void);
+
+         /**************************************************************************************************************
+          * @brief   This method returns the number of separation options in the current Branch instance looking into
+          *          the class member m_au64_sepd.
+          * 
+          * @return uint64_t[out]   The method returns the number of separation options.
+          *************************************************************************************************************/
+         uint64_t separation_number(void);
+
+   };
    
 }
 
