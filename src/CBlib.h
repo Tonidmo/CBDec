@@ -54,7 +54,7 @@ namespace CBlib
       E_CBL_ERR_SCHECK         = -3     //!< Error of an extra safety check, when flag EXTRA_SAFETY_CHECK is on.
    };
 
-   class ClosedBranch
+   class Closed_Branch
    {
       private:
          std::vector<bool> m_au1_checks;    //!< Member array of checks related to the closed branch
@@ -64,7 +64,7 @@ namespace CBlib
          /**************************************************************************************************************
           * @brief Construct a new Closed Branch object. It initializes both checks and events arrays to zeroes.
           *************************************************************************************************************/
-         ClosedBranch(void);
+         Closed_Branch(void);
 
          /**************************************************************************************************************
           * @brief Construct a new Closed Branch object and initialized the members with the passed arguments.
@@ -72,12 +72,12 @@ namespace CBlib
           * @param checks[in]    Input array of checks.
           * @param events[in]    Input array of events.
           *************************************************************************************************************/
-         ClosedBranch(std::vector<bool> const & checks, std::vector<bool> const & events);
+         Closed_Branch(std::vector<bool> const & checks, std::vector<bool> const & events);
 
          /**************************************************************************************************************
           * @brief Destroy the Closed Branch object.
           *************************************************************************************************************/
-         ~ClosedBranch(void);
+         ~Closed_Branch(void);
 
          /**************************************************************************************************************
           * @brief   Returns the member array of checks related to the closed branch.
@@ -140,9 +140,9 @@ namespace CBlib
       private:
          std::vector<bool> m_au1_clstr_checks;              //!< Member array of the checks related to the cluster
          std::vector<bool> m_au1_clstr_events;              //!< Member array of the events related to the cluster
-         std::vector<ClosedBranch> m_ao_dest_grow_cbs;      //!< Member array of destructive growth Closed Branches 
+         std::vector<Closed_Branch> m_ao_dest_grow_cbs;      //!< Member array of destructive growth Closed Branches 
                                                             //!< related to the cluster.
-         std::vector<ClosedBranch> m_ao_non_dest_grow_cbs;  //!< Member array of non-destructive growth Closed Branches 
+         std::vector<Closed_Branch> m_ao_non_dest_grow_cbs;  //!< Member array of non-destructive growth Closed Branches 
                                                             //!< related to the cluster.
 
       public:
@@ -161,8 +161,8 @@ namespace CBlib
           *************************************************************************************************************/
          Cluster(std::vector<bool> au1_checks,
                   std::vector<bool> au1_events,
-                  std::vector<ClosedBranch> ao_dest_grow_cbs,
-                  std::vector<ClosedBranch> ao_non_dest_grow_cbs);
+                  std::vector<Closed_Branch> ao_dest_grow_cbs,
+                  std::vector<Closed_Branch> ao_non_dest_grow_cbs);
 
          /**************************************************************************************************************
           * @brief Default destructor of the Cluster object.
@@ -234,7 +234,7 @@ namespace CBlib
          ECBLibStatus delete_closed_branch_from_cluster(uint64_t const & u64_check);
 
          /**************************************************************************************************************
-          * @brief   This routine includes a ClosedBranch instance into the clusters ClosedBranch registries depending
+          * @brief   This routine includes a Closed_Branch instance into the clusters Closed_Branch registries depending
           *          on the parameter 'u1_is_destructive' that indicates if the closed branch instance to add to the
           *          cluster has been grown in a non-destructive or destructive manner.
           * 
@@ -242,7 +242,7 @@ namespace CBlib
           * @param u1_is_destructive[in]  Flag to indicate whether the closed branch should go to the non-destructive
           *                               growth closed branch collection or to the destructive ones.
           *************************************************************************************************************/
-         void include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_is_destructive);
+         void include_closed_branch_to_cluster(Closed_Branch const & o_cb, bool u1_is_destructive);
    };
    
 }

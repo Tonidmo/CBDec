@@ -26,23 +26,23 @@ namespace CBlib
    /********************************************************************************************************************
     * CLOSED BRANCH CLASS START
     *******************************************************************************************************************/
-   ClosedBranch::ClosedBranch(void)
+   Closed_Branch::Closed_Branch(void)
    {
       m_au1_checks = std::vector<bool>(INITIAL_MEM_ALLOC, false);
       m_au1_events = std::vector<bool>(INITIAL_MEM_ALLOC, false);
    }
 
-   ClosedBranch::ClosedBranch(std::vector<bool> const & a_u1_checks, std::vector<bool> const & a_u1_events):
+   Closed_Branch::Closed_Branch(std::vector<bool> const & a_u1_checks, std::vector<bool> const & a_u1_events):
    m_au1_checks(a_u1_checks), m_au1_events(a_u1_events){}
 
-   ClosedBranch::~ClosedBranch(void){}
+   Closed_Branch::~Closed_Branch(void){}
 
-   std::vector<bool> ClosedBranch::get_cb_checks(void) const
+   std::vector<bool> Closed_Branch::get_cb_checks(void) const
    {
       return this->m_au1_checks;
    }
 
-   bool ClosedBranch::get_cb_check_idx_value(uint64_t const & u64_check_idx) const
+   bool Closed_Branch::get_cb_check_idx_value(uint64_t const & u64_check_idx) const
    {
       bool u1_ret = false;
       if (u64_check_idx < m_au1_checks.size())
@@ -53,12 +53,12 @@ namespace CBlib
       return u1_ret;
    }
 
-   std::vector<bool> ClosedBranch::get_cb_events(void) const
+   std::vector<bool> Closed_Branch::get_cb_events(void) const
    {
       return this->m_au1_events;
    }
 
-   bool ClosedBranch::get_cb_event_idx_value(uint64_t const & u64_event_idx) const
+   bool Closed_Branch::get_cb_event_idx_value(uint64_t const & u64_event_idx) const
    {
       bool u1_ret = false;
       if (u64_event_idx < m_au1_events.size())
@@ -69,7 +69,7 @@ namespace CBlib
       return u1_ret;
    }
 
-   ECBLibStatus ClosedBranch::add_check_to_closed_branch(uint64_t const & u64_new_check)
+   ECBLibStatus Closed_Branch::add_check_to_closed_branch(uint64_t const & u64_new_check)
    {
       ECBLibStatus e_ret = E_CBL_ERR;
 
@@ -94,7 +94,7 @@ namespace CBlib
       return e_ret;
    }
 
-   ECBLibStatus ClosedBranch::add_event_to_closed_branch(uint64_t const & u64_new_event)
+   ECBLibStatus Closed_Branch::add_event_to_closed_branch(uint64_t const & u64_new_event)
    {
       ECBLibStatus e_ret = E_CBL_ERR;
 
@@ -123,14 +123,14 @@ namespace CBlib
       m_au1_clstr_checks = std::vector<bool>(INITIAL_MEM_ALLOC, false);
       m_au1_clstr_events = std::vector<bool>(INITIAL_MEM_ALLOC, false);
 
-      m_ao_dest_grow_cbs = std::vector<ClosedBranch>();
-      m_ao_non_dest_grow_cbs = std::vector<ClosedBranch>();
+      m_ao_dest_grow_cbs = std::vector<Closed_Branch>();
+      m_ao_non_dest_grow_cbs = std::vector<Closed_Branch>();
    }
 
    Cluster::Cluster(std::vector<bool> au1_checks,
                      std::vector<bool> au1_events,
-                     std::vector<ClosedBranch> ao_dest_grow_cbs,
-                     std::vector<ClosedBranch> ao_non_dest_grow_cbs):
+                     std::vector<Closed_Branch> ao_dest_grow_cbs,
+                     std::vector<Closed_Branch> ao_non_dest_grow_cbs):
                      m_au1_clstr_checks(au1_checks),
                      m_au1_clstr_events(au1_events),
                      m_ao_dest_grow_cbs(ao_dest_grow_cbs),
@@ -240,7 +240,7 @@ namespace CBlib
          while (u64_ndest_gr_cb_idx > 0)
          {
             --u64_ndest_gr_cb_idx;
-            ClosedBranch o_aux_cb = m_ao_non_dest_grow_cbs[u64_ndest_gr_cb_idx];
+            Closed_Branch o_aux_cb = m_ao_non_dest_grow_cbs[u64_ndest_gr_cb_idx];
             if (true == o_aux_cb.get_cb_check_idx_value(u64_check))
             {
                u64_triggered_branch_idx = u64_ndest_gr_cb_idx;
@@ -250,7 +250,7 @@ namespace CBlib
 
          if (1U == u16_triggered_count)
          {
-            ClosedBranch o_triggered_cb = m_ao_non_dest_grow_cbs[u64_triggered_branch_idx];
+            Closed_Branch o_triggered_cb = m_ao_non_dest_grow_cbs[u64_triggered_branch_idx];
             std::vector<bool> au1_triggered_cb_checks = o_triggered_cb.get_cb_checks();
             std::vector<bool> au1_triggered_cb_events = o_triggered_cb.get_cb_events();
 
@@ -286,7 +286,7 @@ namespace CBlib
       return e_ret;
    }
 
-   void Cluster::include_closed_branch_to_cluster(ClosedBranch const & o_cb, bool u1_is_destructive = false)
+   void Cluster::include_closed_branch_to_cluster(Closed_Branch const & o_cb, bool u1_is_destructive = false)
    {
       if (true == u1_is_destructive)
       {
