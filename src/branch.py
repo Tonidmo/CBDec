@@ -19,7 +19,6 @@ class Closed_Branch:
         self.checks = checks
         self.events = events
 
-
 class Cluster:
     """
     A cluster consists on the already considered closed branches and helps branches grow.
@@ -55,6 +54,7 @@ class Cluster:
         self.closed_branches_dest = closed_branches_dest
         self.closed_branches_non_dest = closed_branches_non_dest
 
+    # TODO check_if_valid debería devolver el número de separaciones que te produce crecer una rama hacia un data específico.
     def check_if_valid(self, check: int, dest : bool = False) -> bool:
         if self.syndrome[check] and not self.checks[check]:
             # Si no 
@@ -70,6 +70,10 @@ class Cluster:
                 return False
         else:
             return False
+
+    # TODO añadir método que te crece una rama hacia un data específico.
+    def grow_branch_towards_data(self):
+        pass
 
     def destroy_closed_branch(self, index : int):
         self.checks = np.bitwise_xor(self.checks, self.closed_branches_non_dest[index].checks)
