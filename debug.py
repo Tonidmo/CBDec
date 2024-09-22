@@ -3,7 +3,7 @@ import stim
 # from quasicyclic.bp_osd import BPOSD
 import numpy as np
 from beliefmatching import detector_error_model_to_check_matrices
-from src.closed_branch_decoder import CB_decoder
+from bp_closed_branch_decoder import CB_decoder
 
 def simulation(myDecoder, detection_events, observable_flips):
     result = myDecoder.decode(detection_events.astype(int), comments = True)

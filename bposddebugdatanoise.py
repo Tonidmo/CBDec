@@ -1,7 +1,7 @@
 import numpy as np
 from pcm_construction.bbcodes import bbpcm
 from src.noise.data_qubit import depolarizing_round
-from src.closed_branch_decoder import CB_decoder
+from bp_closed_branch_decoder import CB_decoder
 from scipy.linalg import null_space
 from bposd import bposd_decoder
 import galois
