@@ -1,5 +1,5 @@
 import numpy as np
-from branch import Branch, Cluster, Closed_branches
+from src.branch import Branch, Cluster, Closed_branches
 
 
 class CB_decoder():
@@ -8,22 +8,23 @@ class CB_decoder():
         self,
         pcm: np.array,
         priors: np.array,
-        min_weight: float = 1e-20,
+        min_weight: float = 1e-40,
         max_num_branches: int = 25,
-        cts_max: int = 3
+        cts_max: int = 5
         ) -> None:
         
-        self.cluster = Cluster(self)
         self.max_num_branches = max_num_branches
         self.pcm = pcm
-        self.cts_max = cts_max
         self.m, self.n = self.pcm.shape
+        self.cts_max = cts_max
         self.priors = priors
         self.min_weight = min_weight
         # This dual list will help indicate separations
         # self.dual_list = np.full((2, self.m), -1, dtype=int)
         self.checks = np.zeros(self.m, dtype = bool)
+        self.cluster = Cluster(self)
         
+        #TODO Use csc and csr matrices
         
         max_number_rows = 0
         
@@ -59,6 +60,7 @@ class CB_decoder():
     def update_probabilities(self,
                              priors:np.array) -> None:
         self.priors = priors
+        pass
     
     def sort_priors(
         self
@@ -86,55 +88,68 @@ class CB_decoder():
         """
 
         
-        
+        # Non-trivial rows to that specific column.
         checks_to_consider = self.reduced_matrix[column,:]
         
         
         cts = [] # Checks to search
-        checks = np.zeros(self.m, dtype=bool)
-        cb_to_destroy = []
-        
+        checks = np.zeros(self.m, dtype=bool) # Check array contemplating the non-trivia checks within the branch.
+        cb_to_destroy = [] # List of closed_branches that will be destroyed if the branch instance is closed.
+        condition = False
+        dest_cond = False # At least a check adjacent to the event must be non-trivial and not in cluster.
         
         for check in checks_to_consider:
-            if check == -1:
+            if check == -1: 
+                # Due to reduced matrix structure, if it is = to -1, we have no inndices left.
                 break
-            elif syndrome[check] and not self.check_array[check]:
+            elif syndrome[check] and not self.cluster.checks[check]:
                 # Check is closed
+                dest_cond = True
                 checks[check] = True
                 condition = True
             
-            elif syndrome[check] and self.check_array[check]:
-                # Check is non-trivial in syndrome but trivial for cluster 
+            elif syndrome[check] and self.cluster.checks[check]:
+                # Check is non-trivial in syndrome but trivial for cluster, that is, it belongs to a closed branch.
                 if destructive:
                     broken = False
+                    # First we check if it is in its own destroyed closed branches:
                     for index, destroyable_cb in enumerate(self.cluster.destroyable_closed_branches):
                         # If it finds a cb to break, it breaks it.
                         if destroyable_cb.checks[check]:
+                            checks[check] = True
+                            condition = True
+                            broken = True
+                            if index not in cb_to_destroy:
+                                # If the closed-branch to be broken has not already been broken by this branch instance, it is appended.
                                 cb_to_destroy.append(index)
-                                checks[check] = True
-                                condition = True
-                                broken = True
-                                break
+                            break
                     if not broken:
+                        # If the non-trivial check belongs to a closed-branch produced in destructive growth, it is left as a trivial check for this branch instance.
                         cts.append(check)
                 else:
+                    # Other cases imply that the check is trivial
                     cts.append(check)
             
             elif not syndrome[check]:
+                # If the syndrome element is trivial, so is the check.
                 cts.append(check)
         
-        if not condition:
+        if not condition or not dest_cond:
             # If the column does not contain any adjacent non-trivial check, it is omitted.
             return []
+        
+        # The number of separations (directions where the branch instance has to grow) is equal to the length of cts.
         nsep = len(cts)
         if nsep == 0:
             # Branch is closed, include closed-branch, return empty list.
-            self.cluster.destroy_cb(cb_to_destroy)
+            if len(cb_to_destroy) > 1:
+                self.cluster.destroy_cb(cb_to_destroy)
             events = np.zeros(self.n, dtype = bool)
             events[column] = True
             self.cluster.introduce_closed_branch(
                     events,
                     checks,
+                    self.priors[column],
                     dest= destructive
                 )
             return []
@@ -144,8 +159,10 @@ class CB_decoder():
             return []
         
         else:
+            # In this case a branch instance is produced.
             branch_events = np.zeros(self.n, dtype = bool)
             branch_events[column] = True
+            # Linked list is generated, to keep track of separations.
             linked_list = np.full(2*self.m, -1, dtype = int)
             for i in range(len(cts)):
                 check_slot_left = 2*cts[i]
@@ -155,6 +172,7 @@ class CB_decoder():
                 check_right = (i+1) % len(cts)
                 linked_list[check_slot_right] = cts[check_right]
             
+            # Branch object is created and returned within the list.
             branch = Branch(
                 self,
                 syndrome, # syndrome
@@ -169,7 +187,11 @@ class CB_decoder():
             )
             return [branch]
 
-    
+
+    def update_weight(self,
+                      new_weight:float):
+        self.min_weight = new_weight
+   
     def reorder_H_cts(self, syndrome):
         cts_per_columns = np.zeros(self.n, dtype = np.int8)
         for column in range(self.n):
@@ -182,22 +204,32 @@ class CB_decoder():
                     cts += 1
             cts_per_columns[column] = cts
         
-        ordered_columns = np.argsort(cts_per_columns)
+        # ordered_columns = np.argsort(-self.priors)
+        # ordered_columns = np.argsort(cts_per_columns[ordered_columns])
+        ordered_columns = np.argsort((cts_per_columns,-self.priors), kind ='stable')
         
-        return ordered_columns, cts_per_columns
+        # return ordered_columns, cts_per_columns
+        return ordered_columns[0,:]
     
     def grow_round(self,
                    ordered_columns:np.array,
+                   syndrome: np.array,
                    dest: bool) -> None:
+        
+        # We iterate over all the columns of the parity check matrix
         for index in range(self.n):
-            # Non destructive growth.
-            column = self.priors[ordered_columns[index]]
+            
+            # the ordering in columns is given by "ordering_columns"
+            column = ordered_columns[index]
             
             # This way we avoid destruction branches replacing completely equal non-destruction ones.
+            # Aso, if an event is within a closed branch, we do not consider it as a branch instance.
             if self.cluster.events[column]:
                 continue
             
+            # We check if that specific branch can be grown.
             branches = self.check_if_growing(column,
+                                             syndrome,
                                              destructive = dest
                                              )
             
@@ -207,41 +239,50 @@ class CB_decoder():
                 continue
             
             
-            # while (len(branches) < self.max_branches) and (len(branches) != 0):
+            # While the number of elements in the "branches" list is above 0, we will continue to grow the branches.
             while (len(branches) != 0):
                 new_branches = []
                 for branch in branches:
+                    # We grow every single branch wihin the branches list and append it to new_branches.
                     new_branches += branch.grow()
                 
-                branches = []
-                min_nsep = float('inf') 
-                for branch in new_branches:
-                    if branch.nsep < min_nsep:
-                        min_nsep = branch.nsep
-                        branches = [branch]
-                    elif branch.nsep == min_nsep:
-                        branches.append(branch)
-                if min_nsep == 0:
+                if len(new_branches) == 0:
+                    # If the overall length of the new_branches list is 0, we reject the column, as the probability of its branches will be too low.
+                    break
+                
+                if len(new_branches) > self.max_num_branches:
+                    # If the number of branches in new_branches is too high, we keep the self.max_num_branches with highest weight and lowest number of separations.
+                    new_branches = sorted(new_branches, key=lambda x: x.weight, reverse=True)
+                    branches = sorted(new_branches, key=lambda x: x.nsep)[:self.max_num_branches]
+                else:
+                    # If not, we sort them depending on the number of separations, so as to have any possible closed branch as the first element.
+                    branches = sorted(new_branches, key=lambda x: x.nsep)
+
+                
+                if branches[0].nsep == 0:
+                    # If the first element in branches is closed, we exit the loop and shorten the loop to only include a single branch.
                     branches = [branches[0]]
                     break
-                if len(branches) > self.max_num_branches:
-                    branches = []
-                    break
+                
             if len(branches) == 0:
+                # The column did not go anywhere, we omit it.
                 continue
             
+            # here was a closed branch.
             closed_branch = branches[0]
-            self.cluster.destroy_cb(closed_branch.nsep)
+            # ME HE QUEDADO AQUI
+            if len(closed_branch.cb_to_destroy) > 0:
+                self.cluster.destroy_cb(closed_branch.cb_to_destroy)
             events = closed_branch.events
             checks = closed_branch.checks
             
             self.cluster.introduce_closed_branch(
                     events,
                     checks,
+                    closed_branch.weight,
                     dest= dest
                 )
 
-                #TODO check when len(branches) == 1, it is closed. Just pick first one and look nsep value.    
     
     
     def decode(self,
@@ -256,14 +297,20 @@ class CB_decoder():
         # Non-destructible growth
         self.grow_round(
             ordered_columns,
+            syndrome,
             dest = False)
         
+        if np.all(self.cluster.checks == syndrome):
+            return self.cluster.events, self.cluster.checks, self.cluster.cluster_weight, self.cluster.support
         # Destructible growth
         self.grow_round(
             ordered_columns,
+            syndrome,
             dest = True)
         
-        return self.cluster.events, self.cluster.checks
+        
+        
+        return self.cluster.events, self.cluster.checks, self.cluster.cluster_weight, self.cluster.support
         
         
         

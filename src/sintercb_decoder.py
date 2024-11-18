@@ -2,15 +2,16 @@ from typing import Tuple
 
 from sinter import Decoder
 import numpy as np
-
-from quasicyclic.quasi_cyclic import ibm_quasi_cyclic_code_params, quasi_cyclic_from_params
-from quasicyclic.bp_osd import BPOSD
+from typing import Dict
+# from quasicyclic.quasi_cyclic import ibm_quasi_cyclic_code_params, quasi_cyclic_from_params
+# from quasicyclic.bp_osd import BPOSD
 import pathlib
 import stim
-from quasicyclic.closed_branch_decoder import CB_decoder
+from src.bpbp_closed_branch_decoder import BPBP_CB_decoder
+from beliefmatching import detector_error_model_to_check_matrices
 
 
-class sinterCBDecoder(Decoder):
+class sinterBPBPCBDecoder(Decoder):
     def __init__(
             self,
             max_branches: int = 25,
@@ -71,15 +72,31 @@ class sinterCBDecoder(Decoder):
         """
         dem = stim.DetectorErrorModel.from_file(dem_path)
 
-        myDecoder = CB_decoder(
-            dem,
-            max_branches = self.max_barnches,
-            max_growths = self.max_growths,
-            max_cts = self.max_cts,
-            max_bp_iters = self.max_bp_iters,
-            bp_method =  self.bp_method,
-            bp_reweighting = self.bp_reweighting,
-            bposd_kwargs = self.bposd_kwargs
+        bm = detector_error_model_to_check_matrices(dem, allow_undecomposed_hyperedges= True)
+        
+        
+        H = bm.check_matrix.toarray()
+        obs = bm.observables_matrix.toarray()
+        pcm_scln = bm.edge_check_matrix.toarray()
+        obs_phen = bm.edge_observables_matrix.toarray()
+        priors = bm.priors
+        transf_M = bm.hyperedge_to_edge_matrix.toarray()
+        min_weight =1e-28
+        max_branches = 7
+        # TODO add transfer_matrix for other cases, for the moment we will only consider surface codes.
+        
+        
+        
+        myDecoder = BPBP_CB_decoder(
+            H,
+            obs,
+            pcm_scln,
+            obs_phen,
+            transf_M,
+            priors,
+            max_num_branches = max_branches,
+            cts_max = 5,
+            min_weight = min_weight,
         )
 
         shots = stim.read_shot_data_file(path = dets_b8_in_path,
@@ -87,6 +104,7 @@ class sinterCBDecoder(Decoder):
                                          num_detectors = dem.num_detectors,
                                          bit_packed = False
                                         )
+        
         predictions = myDecoder.decode_batch(shots)
 
         stim.write_shot_data_file(data = predictions,
@@ -94,3 +112,7 @@ class sinterCBDecoder(Decoder):
                                   format = "b8",
                                   num_observables = dem.num_observables
                                   )
+        
+
+def sinter_decoders() -> Dict[str, Decoder]:
+    return {"bpbpcb": sinterBPBPCBDecoder()}
